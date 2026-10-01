@@ -208,15 +208,15 @@ section+section{margin-top:36px}
 /* ============ DATA ============ */
 const BELTS=[
  {n:'Blanco',g:'10º Gup',c:'#f7f7f2',m:'Pureza y comienzo. La semilla bajo la tierra.'},
- {n:'Amarillo',g:'9º Gup',c:'#f2c318',m:'La tierra donde brota la semilla y echa raíces.'},
- {n:'Amarillo punta verde',g:'8º Gup',c:'#f2c318',t:'#2e9a4a',m:'El primer brote asoma sobre la tierra.'},
- {n:'Verde',g:'7º Gup',c:'#2e9a4a',m:'La planta crece y se fortalece.'},
- {n:'Verde punta azul',g:'6º Gup',c:'#2e9a4a',t:'#1f4fb5',m:'La planta empieza a mirar hacia el cielo.'},
- {n:'Azul',g:'5º Gup',c:'#1f4fb5',m:'El cielo hacia donde crece el árbol.'},
- {n:'Azul punta roja',g:'4º Gup',c:'#1f4fb5',t:'#c8102e',m:'La técnica empieza a tener poder real.'},
- {n:'Rojo',g:'3º Gup',c:'#c8102e',m:'Peligro: técnica potente que exige control.'},
- {n:'Rojo · 1 punta negra',g:'2º Gup',c:'#c8102e',t:'#111',k:1,m:'Cerca de la madurez. Se pule el control.'},
- {n:'Rojo · 2 puntas negras',g:'1º Gup',c:'#c8102e',t:'#111',k:2,m:'Último paso antes del Dan.'},
+ {n:'Blanco punta amarilla',g:'9º Gup',c:'#f7f7f2',t:'#f2c318',m:'La semilla empieza a despertar.'},
+ {n:'Amarillo',g:'8º Gup',c:'#f2c318',m:'La tierra donde brota la semilla y echa raíces.'},
+ {n:'Amarillo punta verde',g:'7º Gup',c:'#f2c318',t:'#2e9a4a',m:'El primer brote asoma sobre la tierra.'},
+ {n:'Verde',g:'6º Gup',c:'#2e9a4a',m:'La planta crece y se fortalece.'},
+ {n:'Verde punta azul',g:'5º Gup',c:'#2e9a4a',t:'#1f4fb5',m:'La planta empieza a mirar hacia el cielo.'},
+ {n:'Azul',g:'4º Gup',c:'#1f4fb5',m:'El cielo hacia donde crece el árbol.'},
+ {n:'Azul punta roja',g:'3º Gup',c:'#1f4fb5',t:'#c8102e',m:'La técnica empieza a tener poder real.'},
+ {n:'Rojo',g:'2º Gup',c:'#c8102e',m:'Peligro: técnica potente que exige control.'},
+ {n:'Rojo punta negra',g:'1º Gup',c:'#c8102e',t:'#111',m:'Último paso antes del Dan.'},
  {n:'Negro',g:'1º Dan',c:'#141414',m:'Madurez y dominio. El opuesto del blanco… y un nuevo comienzo.'}
 ];
 
@@ -729,7 +729,7 @@ function kickQuestions(lvl,n){
  return shuffle([...L.kicks,...prev]).map((id,i)=>{
   const others=shuffle(Object.keys(KICKS).filter(k=>k!==id)).sort((a,b)=>(known.includes(b)?1:0)-(known.includes(a)?1:0));
   const opts=shuffle([id,...others.slice(0,3)]);
-  return {type:'kick',mode:(lvl>=3&&i%2)?'name':'pick',id,opts,ai:opts.indexOf(id)};});
+  return {type:'kick',mode:(lvl>=4&&i%2)?'name':'pick',id,opts,ai:opts.indexOf(id)};});
 }
 function vocabQuestions(lvl,nCur,nPrev){
  const cur=shuffle(LEVELS[lvl].vocab).slice(0,nCur), prev=shuffle(LEVELS.slice(0,lvl).flatMap(l=>l.vocab)).slice(0,nPrev);
