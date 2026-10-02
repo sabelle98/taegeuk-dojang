@@ -995,7 +995,8 @@ function startExam(lvl,{practice=null,formId=null}){
  S.exam={lvl,practice,picked,qs,i:0,res:[],locked:false};
  go('exam');
 }
-function figOptions(n,label){return `<div class="figs">${Array.from({length:n},(_,j)=>`<button class="figopt opt" data-j="${j}" aria-label="Opción ${LETTERS[j]}"><span class="lt">${LETTERS[j]}</span><canvas></canvas><span class="nm" data-nm="${j}">${label?esc(label(j)):'&nbsp;'}</span></button>`).join('')}</div>`;}
+const stepNameHTML=o=>`${esc(o.t.join(' → '))} <span class="muted">· ${esc(o.s)}</span> <span class="side ${o.lead}">pie ${o.lead==='L'?'izq.':'der.'}</span>`;
+function figOptions(n,label){return `<div class="figs">${Array.from({length:n},(_,j)=>`<button class="figopt opt" data-j="${j}" aria-label="Opción ${LETTERS[j]}"><span class="lt">${LETTERS[j]}</span><canvas></canvas><span class="nm" data-nm="${j}">${label?label(j):'&nbsp;'}</span></button>`).join('')}</div>`;}
 function renderExam(){
  const E=S.exam,q=E.qs[E.i],n=E.qs.length,belt=BELTS[E.lvl];
  const sec=q.type==='form'?`Parte 1 · ${FORMS[q.fid].ko}`:q.type==='kick'?'Parte 2 · Patadas':q.type==='theory'?'Parte 4 · Teoría':'Parte 3 · Vocabulario';
@@ -1011,11 +1012,11 @@ function renderExam(){
   body.innerHTML=`<div class="q wide"><div>
    <div class="eyebrow">Paso ${q.k+1} de ${fm.steps.length}</div>
    <div class="prompt">¿Cuál es el siguiente movimiento?</div>
-   <p class="muted" style="margin:6px 0 12px">Te giras <b>${DIRS[q.st.d].l.toLowerCase()}</b>. Fíjate en el pie que queda adelante y en el brazo que trabaja.</p>
+   <p class="muted" style="margin:6px 0 12px">Te giras <b>${DIRS[q.st.d].l.toLowerCase()}</b>. Fíjate en el movimiento, el pie que queda adelante y el brazo que trabaja.</p>
    <div class="views"><div class="stage ref"><canvas id="ref-cv"></canvas><div class="cap"><div class="eyebrow">${prev?`Paso ${q.k}`:`Junbi${q.fid==='koryo'?' · Tongmilgi':''}`}</div></div></div><div class="stage ref"><canvas id="refair-cv"></canvas><div class="cap" style="top:auto;bottom:8px"><div class="eyebrow">Desde arriba</div></div></div></div>
    <div class="legend" style="margin-top:10px"><span class="side R">Derecha</span><span class="side L">Izquierda</span></div>
    <div class="trail">${fq.map(o=>{const r=E.res[o.j];return `<span class="${r===undefined?(o.j===E.i?'cur':''):r?'ok':'bad'}">${o.x.k+1}</span>`}).join('')}</div>
-  </div><div>${figOptions(q.opts.length)}</div></div>`;
+  </div><div>${figOptions(q.opts.length,j=>stepNameHTML(q.opts[j]))}</div></div>`;
   new Fig(document.getElementById('ref-cv'),{belt,pose:startPose,view:'detras',start:true});
   {const a=new Aerial(document.getElementById('refair-cv'),q.fid);a.go(q.k-1);a.p=1;a.t0=-1e9;}
   body.querySelectorAll('.figopt canvas').forEach((cv,j)=>{const f=new Fig(cv,{belt,pose:startPose,view:'detras',start:true,zoom:.78});f.play(stepFrames(q.opts[j]).frames,{loop:true,start:startPose});});
@@ -1051,7 +1052,7 @@ function answer(j){
  document.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(k===ai)b.classList.add('right');else if(k===j)b.classList.add('wrong');});
  // revela los nombres bajo cada figura
  document.querySelectorAll('[data-nm]').forEach(el=>{const o=q.opts[+el.dataset.nm];
-  el.innerHTML=q.type==='form'?`${esc(o.t.join(' → '))} <span class="muted">· ${esc(o.s)}</span> <span class="side ${o.lead}">pie ${o.lead==='L'?'izq.':'der.'}</span>`:`<span class="ko">${esc(KICKS[o].ko)}</span> <span class="muted">· ${esc(KICKS[o].es)}</span>`;});
+  el.innerHTML=q.type==='form'?stepNameHTML(o):`<span class="ko">${esc(KICKS[o].ko)}</span> <span class="muted">· ${esc(KICKS[o].es)}</span>`;});
  const wait=q.type==='vocab'||q.type==='theory'||q.mode==='name'?(ok?700:1700):(ok?1600:3200);
  setTimeout(()=>{E.locked=false;E.i++;if(E.i>=E.qs.length)finishExam();else renderExam();},wait);
 }
