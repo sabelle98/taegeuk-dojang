@@ -944,16 +944,25 @@ function tabExam(){
 /* ============ EXAM ============ */
 const skey=st=>st.s+'|'+st.lead+'|'+st.t.join('>');
 const LETTERS='ABCD';
+/* huella visual de un paso: pose final + máximos y mínimos de cada articulación durante el movimiento */
+const JKEY=/^([LR](t[fokp]|a[xoet])|sx|sz|j)$/;
+function visSig(st){const fr=stepFrames(st).frames,end=fr[fr.length-1].p,sig={};
+ for(const k in end)if(JKEY.test(k)){let mn=1e9,mx=-1e9;fr.forEach(f=>{const v=f.p[k]||0;mn=Math.min(mn,v);mx=Math.max(mx,v);});sig[k]=[end[k]||0,mn,mx];}
+ return sig;}
+const visDist=(a,b)=>{let d=0;for(const k in a){const x=a[k],y=b[k]||[0,0,0];d+=Math.abs(x[0]-y[0])+.5*Math.abs(x[1]-y[1])+.5*Math.abs(x[2]-y[2]);}return d;};
 function formQuestions(fid){
  const fm=FORMS[fid], allSteps=Object.values(FORMS).flatMap(f=>f.steps), stances=['Ap seogi','Ap kubi','Dwit kubi','Beom seogi','Juchum seogi'];
  return fm.steps.map((st,k)=>{
-  const keys=new Set([skey(st)]), opts=[st];
-  const add=x=>{if(x&&opts.length<4&&!keys.has(skey(x))){keys.add(skey(x));opts.push(x);}};
+  const norm=x=>({...x,d:st.d,pos:st.pos});
+  const keys=new Set([skey(st)]), opts=[norm(st)], sigs=[visSig(norm(st))];
+  // solo entra una alternativa que se vea claramente distinta de todas las que ya están
+  const add=x=>{if(!x||opts.length>=4||keys.has(skey(x)))return;const n=norm(x),sg=visSig(n);
+   if(sigs.some(s=>visDist(s,sg)<70))return;keys.add(skey(x));opts.push(n);sigs.push(sg);};
   add({...st,lead:oth(st.lead)});                                   // mismo movimiento, lado contrario
   shuffle(fm.steps).forEach(x=>{if(opts.length<3)add(x)});            // otro paso de la misma forma
   add({...st,s:shuffle(stances.filter(s=>s!==st.s))[0]});            // otra posición
   shuffle(allSteps).forEach(add);
-  const sh=shuffle(opts.map(o=>({...o,d:st.d,pos:st.pos})));
+  const sh=shuffle(opts);
   return {type:'form',fid,k,st,opts:sh,ai:sh.findIndex(o=>skey(o)===skey(st))};
  });
 }
