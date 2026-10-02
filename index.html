@@ -101,6 +101,15 @@ section+section{margin-top:36px}
 .side::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
 .side.R{color:var(--red)} .side.L{color:var(--blue)}
 .legend{display:flex;gap:12px}
+.tris{display:flex;flex-wrap:wrap;gap:8px}
+.tri{display:flex;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13.5px}
+.sym{font-size:34px;line-height:1;color:var(--ink)}
+.symbig{font-size:52px;line-height:1;margin:6px 0}
+.symsm{float:right;font-size:24px;line-height:1;margin-left:8px}
+.qa{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.viewbar{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.vb{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.vb[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
 .figopt.opt{position:relative;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden;text-align:left}
 .figopt:hover:not(:disabled){border-color:var(--ink)}
@@ -136,7 +145,7 @@ section+section{margin-top:36px}
 .term{padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);min-width:0}
 .term .ko{font-size:19px;display:block}
 .term span{font-size:13.5px;color:var(--muted)}
-.exambox{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 20px}
+.exambox{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 20px}
 .part{padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .part b{display:block;font-size:15px;margin:4px 0}
 .part span{font-size:13px;color:var(--muted)}
@@ -162,7 +171,7 @@ section+section{margin-top:36px}
 .trail span.cur{outline:2px solid var(--ink)}
 .result{max-width:720px}
 .result h1{font-size:clamp(36px,6vw,60px);margin:6px 0 10px}
-.scores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0}
 .score{padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .score b{font-family:var(--display);font-weight:400;font-size:30px;display:block;font-variant-numeric:tabular-nums}
 .miss{font-size:14px;margin:6px 0 0;padding-left:18px}
@@ -204,20 +213,21 @@ section+section{margin-top:36px}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script>
 /* ============ DATA ============ */
 const BELTS=[
- {n:'Blanco',g:'10º Gup',c:'#f7f7f2',m:'Pureza y comienzo. La semilla bajo la tierra.'},
- {n:'Blanco punta amarilla',g:'9º Gup',c:'#f7f7f2',t:'#f2c318',m:'La semilla empieza a despertar.'},
- {n:'Amarillo',g:'8º Gup',c:'#f2c318',m:'La tierra donde brota la semilla y echa raíces.'},
+ {n:'Blanco',g:'10º Gup',c:'#f7f7f2',m:'Pureza, inicio.'},
+ {n:'Blanco punta amarilla',g:'9º Gup',c:'#f7f7f2',t:'#f2c318',m:'La semilla empieza a germinar.'},
+ {n:'Amarillo',g:'8º Gup',c:'#f2c318',m:'Germinación: el maíz que crece en la tierra.'},
  {n:'Amarillo punta verde',g:'7º Gup',c:'#f2c318',t:'#2e9a4a',m:'El primer brote asoma sobre la tierra.'},
- {n:'Verde',g:'6º Gup',c:'#2e9a4a',m:'La planta crece y se fortalece.'},
+ {n:'Verde',g:'6º Gup',c:'#2e9a4a',m:'La naturaleza: el vigor de la vida que crece.'},
  {n:'Verde punta azul',g:'5º Gup',c:'#2e9a4a',t:'#1f4fb5',m:'La planta empieza a mirar hacia el cielo.'},
- {n:'Azul',g:'4º Gup',c:'#1f4fb5',m:'El cielo hacia donde crece el árbol.'},
+ {n:'Azul',g:'4º Gup',c:'#1f4fb5',m:'El color del cielo: aumento de conocimientos, desarrollo en potencia.'},
  {n:'Azul punta roja',g:'3º Gup',c:'#1f4fb5',t:'#c8102e',m:'La técnica empieza a tener poder real.'},
- {n:'Rojo',g:'2º Gup',c:'#c8102e',m:'Peligro: técnica potente que exige control.'},
+ {n:'Rojo',g:'2º Gup',c:'#c8102e',m:'El fruto maduro, el atardecer: cerca del fin.'},
  {n:'Rojo punta negra',g:'1º Gup',c:'#c8102e',t:'#111',m:'Último paso antes del Dan.'},
- {n:'Negro',g:'1º Dan',c:'#141414',m:'Madurez y dominio. El opuesto del blanco… y un nuevo comienzo.'}
+ {n:'Negro',g:'1º Dan',c:'#141414',m:'El carbón duro y sencillo: la unión de todo.'}
 ];
 
 const KICKS={
@@ -327,158 +337,367 @@ const LEVELS=[
 ];
 const DIRS={N:{l:'Al frente',a:0},E:{l:'A la derecha',a:90},S:{l:'Hacia atrás',a:180},W:{l:'A la izquierda',a:270}};
 
-/* ============ FIGURE ENGINE ============ */
-const G0={t:4,Ft:20,Fk:14,Bt:-20,Bk:8,Fs:40,Fe:85,Bs:15,Be:110,Ff:90,Bf:90,sx:1,j:0,x:0};
-const oth=s=>s==='L'?'R':'L';
-/* F/B (adelante/atrás) -> L/R (izquierda/derecha). leg: pie adelantado · arm: mano que ejecuta */
-function lr(o,leg='L',arm=leg){const r={};for(const k in o){const m=/^([FB])([tkfse])$/.exec(k);if(m){const main='tkf'.includes(m[2])?leg:arm;r[(m[1]==='F'?main:oth(main))+m[2]]=o[k];}else r[k]=o[k];}return r;}
-const pick=(o,re)=>{const r={};for(const k in o)if(re.test(k))r[k]=o[k];return r;};
-const G=lr(G0,'L');
-const K=(o,ms)=>({o,ms});
-const SEQ={
- ap_olligi:[K({Bt:60,Bk:0,Bf:100},180),K({Bt:135,Bk:0,Bf:100,t:-8,Ft:5,Fk:0},240),K({Bt:60,Bk:0},260),K({},260)],
- ap:[K({Bt:95,Bk:115,Ft:10,Fk:10},220),K({Bt:92,Bk:0,Bf:95,t:-8,Ft:8,Fk:6},160),K({Bt:95,Bk:115},180),K({},260)],
- dollyeo:[K({Bt:75,Bk:125,t:-12,Ft:10},220),K({Bt:88,Bk:0,Bf:12,t:-30,Fs:25,Fe:95,Ft:6,Fk:4},170),K({Bt:80,Bk:120,t:-15},180),K({},260)],
- bandal:[K({Bt:80,Bk:120,t:-8},200),K({Bt:92,Bk:0,Bf:50,t:-18,Ft:8},170),K({Bt:85,Bk:115},170),K({},240)],
- yeop:[K({Bt:90,Bk:145,t:-15,Ft:5,Fk:15},240),K({Bt:100,Bk:0,Bf:80,t:-52,Fs:15,Fe:110,Ft:-5,Fk:5},180),K({Bt:90,Bk:140,t:-20},200),K({},280)],
- mireo:[K({Bt:95,Bk:125},220),K({Bt:85,Bk:5,Bf:100,t:-12,x:16},180),K({Bt:90,Bk:115,x:10},200),K({x:0},260)],
- naeryeo:[K({Bt:70,Bk:20},180),K({Bt:165,Bk:0,Bf:95,t:-15,Ft:5,Fk:0},260),K({Bt:150,Bk:0,t:-12},90),K({Bt:50,Bk:0,Bf:95,t:2},190),K({},260)],
- dwit:[K({sx:.1,Bt:-10,Bk:40,t:15},200),K({sx:-1,Bt:-15,Bk:130,t:35,Ft:20,Fk:20},150),K({sx:-1,Bt:-95,Bk:0,Bf:100,t:48,Ft:15,Fk:10},170),K({sx:-1,Bt:-20,Bk:120,t:30},180),K({sx:-1},150),K({sx:1},300)],
- huryeo:[K({Bt:90,Bk:145,t:-20},230),K({Bt:105,Bk:10,Bf:80,t:-45},160),K({Bt:100,Bk:115,Bf:80,t:-45},120),K({Bt:90,Bk:140,t:-20},180),K({},260)],
- pyojeok:[K({Fs:90,Fe:5},200),K({Fs:90,Fe:5,Bt:70,Bk:0},150),K({Fs:90,Fe:5,Bt:102,Bk:0,Bf:60,t:-4},150),K({Fs:90,Fe:5,Bt:40,Bk:0},180),K({},260)],
- narae:[K({Bt:80,Bk:125,t:-12,j:-6},180),K({Bt:88,Bk:0,Bf:15,t:-28,j:-8},140),K({Bt:30,Bk:20,Ft:60,Fk:110,t:-8,j:-22},150),K({Ft:88,Fk:0,Ff:15,Bt:10,Bk:30,t:-28,j:-16},150),K({Ft:40,Fk:60,j:-4},170),K({},240)],
- twieo_ap:[K({Bk:55,Fk:45,Ft:35,t:10},170),K({Ft:105,Fk:125,Bt:-10,Bk:40,j:-55},200),K({Ft:60,Fk:115,Bt:95,Bk:0,Bf:95,j:-62,t:-8},150),K({Bt:20,Bk:35,Ft:20,Fk:35,j:-8},200),K({},220)],
- dubal:[K({Bk:55,Fk:55,Ft:35,t:10},170),K({Ft:95,Fk:0,Ff:95,Bt:-5,Bk:60,j:-62,t:-5},170),K({Ft:60,Fk:110,Bt:95,Bk:0,Bf:95,j:-72,t:-10},150),K({Bt:20,Bk:35,Ft:15,Fk:35,j:-6},200),K({},220)],
- dwi_huryeo:[K({sx:.1,t:10,Bt:-5,Bk:20},180),K({sx:-1,Bt:-60,Bk:40,t:40},140),K({sx:-1,Bt:-115,Bk:0,Bf:80,t:55,Ft:15},150),K({sx:-1,Bt:-95,Bk:100,t:50},130),K({sx:-1,Bt:-20,Bk:30,t:20},180),K({sx:1},300)],
- twieo_yeop:[K({Bk:55,Fk:55,Ft:30,t:5},170),K({Ft:95,Fk:140,Bt:90,Bk:140,j:-55,t:-15},170),K({Ft:95,Fk:140,Bt:100,Bk:0,Bf:80,j:-62,t:-50},150),K({Ft:20,Fk:30,Bt:-10,Bk:30,j:-6,t:-10},220),K({},220)],
- twieo_dwit:[K({Bk:50,Fk:50,Ft:30,sx:.2,t:10},180),K({sx:-1,j:-55,Ft:80,Fk:130,Bt:-10,Bk:130,t:30},170),K({sx:-1,j:-62,Ft:80,Fk:130,Bt:-95,Bk:0,Bf:100,t:45},150),K({sx:-1,j:-6,Bt:-20,Bk:30,Ft:20,Fk:30},200),K({sx:1},300)],
- dolgae:[K({sx:.2,Bk:40,Fk:40,t:10},180),K({sx:-1,j:-42,Ft:90,Fk:120,t:-5},150),K({sx:.1,j:-62,Ft:60,Fk:120,Bt:80,Bk:120},120),K({sx:1,j:-62,Bt:90,Bk:0,Bf:12,t:-30,Ft:40,Fk:120},150),K({sx:1,j:-6,Bt:20,Bk:30,Ft:10,Fk:30},200),K({},220)],
- dubeon_yeop:[K({Bt:85,Bk:145,t:-15},200),K({Bt:60,Bk:0,Bf:80,t:-42},150),K({Bt:85,Bk:145,t:-20},140),K({Bt:100,Bk:0,Bf:80,t:-52},150),K({Bt:85,Bk:140,t:-20},170),K({},250)]
-};
-const STANCE={
- 'Ap seogi':{Ft:14,Fk:0,Bt:-14,Bk:0,t:0},'Ap kubi':{Ft:38,Fk:38,Bt:-28,Bk:0,t:2},'Dwit kubi':{Ft:30,Fk:10,Bt:15,Bk:40,t:-4},
- 'Beom seogi':{Ft:45,Fk:50,Bt:10,Bk:50,t:-2},'Juchum seogi':{Ft:30,Fk:45,Bt:25,Bk:45,t:0},'Moa seogi':{Ft:1,Fk:0,Bt:-1,Bk:0,t:0},
- 'Naranhi seogi':{Ft:3,Fk:0,Bt:-3,Bk:0,t:0},'Dwikkoa seogi':{Ft:28,Fk:40,Bt:22,Bk:55,t:6},'Oen seogi':{Ft:10,Fk:0,Bt:-10,Bk:0,t:0},'Oreun seogi':{Ft:10,Fk:0,Bt:-10,Bk:0,t:0}
-};
-const HIP={Bs:-30,Be:115};
-function armFrames(tech){
- const s=tech.toLowerCase(), P=(o)=>Object.assign({},o);
- if(s.includes('mureup chigi'))return[P({Bt:110,Bk:150,Fs:110,Fe:40,Bs:100,Be:60,t:-4})];
- if(s.includes('mureup kkeokki'))return[P({Fs:60,Fe:10,Bs:45,Be:100})];
- if(s.includes('dubeon jireugi'))return[P({Bs:90,Be:0,Fs:-30,Fe:115}),P({Fs:90,Fe:0,...HIP})];
- if(s.includes('gawi'))return[P({Fs:35,Fe:0,Bs:70,Be:90})];
- if(s.includes('otgeoreo'))return[P({Fs:35,Fe:10,Bs:40,Be:10})];
- if(s.includes('bo jumeok'))return[P({Fs:55,Fe:100,Bs:50,Be:105})];
- if(s.includes('hecheo'))return s.includes('arae')?[P({Fs:25,Fe:0,Bs:20,Be:0})]:[P({Fs:45,Fe:105,Bs:35,Be:105})];
- if(s.includes('oesanteul'))return[P({Fs:150,Fe:80,Bs:30,Be:0})];
- if(s.includes('eolgul makgi')||s.includes('bitureo')||s.includes('eolgul bakkat makgi'))return[P({Fs:155,Fe:65,...HIP})];
- if(s.includes('arae pyojeok'))return[P({Fs:40,Fe:25,Bs:40,Be:0})];
- if(s.includes('arae'))return[P({Fs:28,Fe:0,...HIP})];
- if(s.includes('sonnal momtong makgi')||s.includes('hansonnal momtong')||s.includes('geodeureo'))return[P({Fs:60,Fe:75,Bs:30,Be:115})];
- if(s.includes('makgi'))return[P({Fs:50,Fe:95,...HIP})];
- if(s.includes('palkup pyojeok'))return[P({Fs:85,Fe:160,Bs:85,Be:20})];
- if(s.includes('palkup'))return[P({Fs:90,Fe:150,...HIP})];
- if(s.includes('deung jumeok'))return[P({Fs:105,Fe:25,...HIP})];
- if(s.includes('mejumeok'))return[P({Fs:150,Fe:20,...HIP}),P({Fs:65,Fe:5,...HIP})];
- if(s.includes('chigi')||s.includes('kaljaebi'))return[P({Fs:95,Fe:15,...HIP})];
- if(s.includes('eolgul jireugi'))return[P({Fs:108,Fe:0,...HIP})];
- if(s.includes('dangkyeo'))return[P({Fs:70,Fe:115,...HIP})];
- return[P({Fs:90,Fe:0,...HIP})];
+/* ============ TEORÍA Y SIGNIFICADOS (fuente: «Lo básico de Taekwondo», Academia Um Yang Chong Hong) ============ */
+const TRI={t1:'☰',t2:'☱',t3:'☲',t4:'☳',t5:'☴',t6:'☵',t7:'☶',t8:'☷'};
+const T=(cat,q,a,sym)=>({cat,q,a,sym});
+const CATS={elemento:'Elemento de cada forma',simbolo:'Simbología de los trigramas',trigrama:'Trigramas',color:'Colores del cinturón',concepto:'Conceptos y filosofía',historia:'Historia',grado:'Grados y formas Dan'};
+const THEORY=[
+ [T('elemento','¿Qué elemento representa Taegeuk Il Jang?','El cielo (Keon)','☰'),
+  T('simbolo','¿Qué simboliza Keon, el trigrama de Il Jang?','El cielo y el universo: el origen de todo, siempre cambiante','☰'),
+  T('concepto','¿Qué significa la palabra Taekwondo?','Tae: pie · Kwon: puño · Do: camino'),
+  T('concepto','Más allá de lo literal, ¿qué es el Taekwondo?','El camino del entrenamiento del cuerpo, la mente y el espíritu a través de pies y puños'),
+  T('concepto','¿Qué significa Taegeuk?','La gran eternidad'),
+  T('concepto','¿Qué representa un poomsae?','Un combate de una persona contra varios enemigos, en autodefensa'),
+  T('concepto','¿Por qué los poomsae comienzan con un bloqueo?','Porque el taekwondista nunca incita a la violencia: la técnica es el último recurso'),
+  T('concepto','¿Qué es Kibon dongjak?','La técnica básica: cada técnica de mano y pie entrenada por separado'),
+  T('color','¿Qué simboliza el cinturón blanco?','Pureza, inicio')],
+ [T('elemento','¿Qué elemento representa Taegeuk Ee Jang?','El lago (Tae)','☱'),
+  T('simbolo','¿Qué simboliza Tae, el trigrama de Ee Jang?','Fuerza interior y suavidad exterior','☱'),
+  T('concepto','¿Qué significa Um Yang?','Es el Yin Yang en coreano'),
+  T('concepto','¿Qué representa el Yin?','El principio femenino: la tierra, la oscuridad, la pasividad'),
+  T('concepto','¿Qué representa el Yang?','El principio masculino: el cielo, la luz, la actividad'),
+  T('concepto','¿Qué significa Chong Hong?','Azul y rojo, los colores del Um Yang coreano'),
+  T('concepto','¿Qué es Kyorugi?','El combate deportivo, con reglas y puntaje'),
+  T('concepto','¿Qué es Hosin sul?','La defensa personal: la técnica aplicada a un peligro real'),
+  T('color','¿Qué simboliza el cinturón amarillo?','Germinación: el maíz que crece en la tierra')],
+ [T('elemento','¿Qué elemento representa Taegeuk Sam Jang?','El fuego (Ri)','☲'),
+  T('simbolo','¿Qué simboliza Ri, el trigrama de Sam Jang?','El fuego y la luz: una mente justa y disciplinada','☲'),
+  T('concepto','¿Qué es Gyeokpa (Kiokpa)?','Romper objetos para aprender a concentrar el Chi en un solo punto'),
+  T('concepto','¿Qué son las técnicas de habilidad?','Patadas y combinaciones con saltos, giros y varios golpes por ejecución'),
+  T('concepto','¿Por qué se dice que el poomsae es meditación dinámica?','Porque une la respiración con el movimiento y concentra el Chi'),
+  T('concepto','¿Qué significa Palgwe?','Los ocho poderes del universo'),
+  T('color','¿Qué simboliza el cinturón verde?','La naturaleza: el vigor de la vida que crece')],
+ [T('elemento','¿Qué elemento representa Taegeuk Sa Jang?','El trueno (Jin)','☳'),
+  T('simbolo','¿Qué simboliza Jin, el trigrama de Sa Jang?','El sobrecogimiento ante la fuerza de la naturaleza: fuerza y dignidad','☳'),
+  T('historia','¿Cuáles eran los tres reinos de la antigua Corea?','Koguryo, Paekje y Silla'),
+  T('historia','¿Quiénes eran los Hwarang?','Los guerreros "caballeros de la flor" del reino de Silla'),
+  T('historia','¿Cómo se llamaba el primer sistema de combate coreano?','Subak (Subakdo), luego Taekyon'),
+  T('color','¿Qué simboliza el cinturón azul?','El color del cielo: aumento de conocimientos')],
+ [T('elemento','¿Qué elemento representa Taegeuk Oh Jang?','El viento (Seon)','☴'),
+  T('simbolo','¿Qué simboliza Seon, el trigrama de Oh Jang?','El viento: una brisa suave o un huracán','☴'),
+  T('historia','¿Quiénes eran los Sonbae?','Los guerreros más fuertes de Koguryo, que en paz estudiaban artes e historia'),
+  T('historia','¿Qué se descubrió en las tumbas Muyong, Samsil y Kakjo?','Murales de guerreros practicando Subakdo'),
+  T('historia','¿Durante qué dinastía el Subakdo pasó a llamarse Taekyon?','La dinastía Koryo')],
+ [T('elemento','¿Qué elemento representa Taegeuk Yuk Jang?','El agua (Gam)','☵'),
+  T('simbolo','¿Qué simboliza Gam, el trigrama de Yuk Jang?','El agua: se acomoda a todo, fluye suave o arrasa como torrente','☵'),
+  T('historia','¿En qué año se reunieron las 9 grandes escuelas (Kwan) para unificarse?','1955'),
+  T('historia','¿En qué año se adoptó el nombre Taekwon-do?','1957 (oficial en 1965)'),
+  T('concepto','¿Cuáles son los tres objetivos del Taekwondo?','Físico, mental y espiritual'),
+  T('color','¿Qué simboliza el cinturón rojo?','El fruto maduro, el atardecer: cerca del fin')],
+ [T('elemento','¿Qué elemento representa Taegeuk Chil Jang?','La montaña (Gan)','☶'),
+  T('simbolo','¿Qué simboliza Gan, el trigrama de Chil Jang?','La montaña: firmeza, fuerza y poder','☶'),
+  T('historia','¿En qué año se fundó el Kukkiwon?','1972'),
+  T('historia','¿En qué año se fundó la WTF (hoy World Taekwondo)?','1973'),
+  T('historia','¿Quién fue el primer presidente del Kukkiwon y la WTF?','Un Yong Kim')],
+ [T('elemento','¿Qué elemento representa Taegeuk Pal Jang?','La tierra (Gon)','☷'),
+  T('simbolo','¿Qué simboliza Gon, el trigrama de Pal Jang?','La tierra: estabilidad, sostiene el crecimiento de la vida','☷'),
+  T('historia','¿En qué Juegos Olímpicos fue deporte de demostración?','Seúl 1988 y Barcelona 1992'),
+  T('historia','¿Desde qué Juegos Olímpicos es deporte oficial?','Sydney 2000'),
+  T('concepto','¿Qué es el examen de grado?','Una prueba personal en el camino marcial, no una competencia')],
+ [T('trigrama','¿Qué trigrama corresponde a Taegeuk Il Jang?','☰ Keon · cielo','☰'),
+  T('trigrama','¿Qué trigrama corresponde a Taegeuk Sam Jang?','☲ Ri · fuego','☲'),
+  T('trigrama','¿Qué trigrama corresponde a Taegeuk Yuk Jang?','☵ Gam · agua','☵'),
+  T('trigrama','¿Qué trigrama corresponde a Taegeuk Pal Jang?','☷ Gon · tierra','☷'),
+  T('historia','¿Quién trajo el Taekwondo a Chile y en qué año?','El maestro Young Soo Kim, en 1977'),
+  T('grado','¿Cómo se llama formalmente a un 1º Dan?','Jo Kyo Nim (instructor)'),
+  T('grado','¿Cómo se llama formalmente a un 4º Dan?','Sa Bum Nim (maestro)')],
+ [T('grado','¿Qué simboliza Koryo?','Seonbae: el hombre sabio, el espíritu del pueblo coreano'),
+  T('color','¿Qué simboliza el cinturón negro?','El carbón duro y sencillo: la unión de todo'),
+  T('grado','¿Qué simboliza Keumgang?','El diamante: dureza, fuerza y poder'),
+  T('grado','¿Qué simboliza Taebaek?','Santidad, lo sagrado'),
+  T('grado','¿Qué simboliza Pyongwon?','La planicie: la gran tierra, madre de todo'),
+  T('grado','¿Qué simboliza Sipjin?','El decimal: la longevidad y sus 10 símbolos'),
+  T('grado','¿Qué simboliza Jitae?','Una persona de pie en la tierra mirando al cielo'),
+  T('grado','¿Qué simboliza Ilyeo?','La unidad de la mente y el cuerpo'),
+  T('grado','¿Cómo se llama formalmente a un 6º o 7º Dan?','Kwan Jang Nim (gran maestro)')]
+];
+THEORY.forEach((items,i)=>{LEVELS[i].theory=items;});
+/* vocabulario de partes del cuerpo y posiciones del documento de la academia */
+LEVELS[0].vocab.push(V('Mori','Cabeza'),V('Pal','Brazo'),V('Dari','Pierna'),V('Bal','Pie'),V('Son','Mano'),V('Naranhi seogi','Posición de alerta, pies paralelos'),V('Kibon junbi','Posición de preparación'));
+LEVELS[1].vocab.push(V('Palmok','Antebrazo'),V('Mureup','Rodilla'),V('Apchuk','Metatarso (base de los dedos)'));
+LEVELS[2].vocab.push(V('Eokkae','Hombro'),V('Be','Estómago'),V('Dwichuk','Talón'),V('Abbal','Pie delantero'),V('Dwitbal','Pie atrasado'));
+LEVELS[3].vocab.push(V('An palmok','Antebrazo, borde interno (radial)'),V('Bakkat palmok','Antebrazo, borde externo (cubital)'),V('Hakdari seogi','Posición de grulla, un pie junto a la rodilla'));
+LEVELS[4].vocab.push(V('Gyeopson junbi','Preparación con las manos superpuestas'),V('Bojumeok junbi','Preparación con puño cubierto'));
+function theoryQuestions(lvl,nCur,nPrev){
+ const cur=shuffle(LEVELS[lvl].theory||[]).slice(0,nCur), prev=shuffle(LEVELS.slice(0,lvl).flatMap(l=>l.theory||[])).slice(0,nPrev);
+ const all=LEVELS.flatMap(l=>l.theory||[]);
+ return shuffle([...cur,...prev]).map(t=>{
+  const same=shuffle(all.filter(x=>x.cat===t.cat&&x.a!==t.a&&x.q!==t.q).map(x=>x.a)).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3);
+  return {type:'theory',q:t.q,sym:t.cat==='simbolo'?t.sym:null,ans:t.a,opts:shuffle([t.a,...same])};});
 }
-/* mano contraria al pie adelantado (baro); el resto se hace con la mano del mismo lado */
-const OPP=['baro','an makgi','mok chigi','palkup dollyeo','bitureo','batangson momtong makgi','dangkyeo','kaljaebi'];
+
+/* ============ FIGURA 3D ============ */
+const rad=d=>d*Math.PI/180, ease=p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const FIGS=new Set();
+const oth=s=>s==='L'?'R':'L';
+const SO={L:1,R:-1};                       // signo "hacia afuera" de cada lado (la izquierda queda en +X)
+const U=.78;                               // metros por unidad del mapa aéreo
+const YAW={N:180,E:90,S:0,W:-90};          // la figura mira +Z con yaw 0; el frente (jueces) está en -Z
+const legP=(s,l)=>({[s+'tf']:l.f||0,[s+'to']:l.o||0,[s+'tk']:l.k||0,[s+'tp']:l.p||0});
+const armP=(s,a)=>({[s+'ax']:a.x||0,[s+'ao']:a.o||0,[s+'ae']:a.e||0,[s+'at']:a.t||0});
+const getLeg=(P,s)=>({f:P[s+'tf'],o:P[s+'to'],k:P[s+'tk'],p:P[s+'tp']});
+const BASE={yaw:0,rx:0,rz:0,j:0,sx:0,sz:0,sy:0,...legP('L',{}),...legP('R',{}),...armP('L',{}),...armP('R',{})};
+
+/* ---- posiciones (F = pierna adelantada, B = atrás) ---- */
+const STANCE={
+ 'Ap seogi':{F:{f:18,o:3},B:{f:-18,o:3}},
+ 'Ap kubi':{F:{f:42,o:4,k:52},B:{f:-36,o:6,p:-10}},
+ 'Dwit kubi':{F:{f:28,o:2,k:12,p:20},B:{f:-8,o:28,k:58},sx:-3},
+ 'Beom seogi':{F:{f:38,o:2,k:62,p:35},B:{f:12,o:18,k:58}},
+ 'Juchum seogi':{F:{f:30,o:28,k:62},B:{f:30,o:28,k:62}},
+ 'Moa seogi':{F:{f:0,o:1},B:{f:0,o:1}},
+ 'Naranhi seogi':{F:{f:0,o:6},B:{f:0,o:6}},
+ 'Dwikkoa seogi':{F:{f:34,o:2,k:60},B:{f:14,o:-14,k:78,p:30}},
+ 'Oen seogi':{F:{f:12,o:12},B:{f:-12,o:8}},
+ 'Oreun seogi':{F:{f:12,o:12},B:{f:-12,o:8}}
+};
 const FWD=new Set(['Ap seogi','Ap kubi','Juchum seogi','Dwikkoa seogi','Moa seogi','Naranhi seogi','Oen seogi','Oreun seogi']);
+const JUNBI_ARM={x:16,o:-14,e:58};
+
+/* ---- brazos: M = mano que ejecuta, O = la otra ---- */
+const HIP={x:-28,o:10,e:105}, PUNCH={x:88,o:-12,e:2};
+function armFrames(tech){
+ const s=tech.toLowerCase(), F=(M,O,extra)=>({M,O,...(extra||{})});
+ const LOWPREP=F({x:62,o:-50,e:140,t:50},{x:38,o:-2,e:8});
+ if(s.includes('mureup chigi'))return[F({x:70,o:-8,e:70},{x:70,o:-8,e:70},{knee:true})];
+ if(s.includes('mureup kkeokki'))return[F({x:60,o:-10,e:60},{x:30,o:10,e:90}),F({x:40,o:-12,e:15},{x:40,o:-8,e:60})];
+ if(s.includes('dubeon jireugi'))return[F(HIP,PUNCH),F(PUNCH,HIP)];
+ if(s.includes('gawi'))return[F({x:50,o:-45,e:120},{x:55,o:-40,e:120}),F({x:36,o:16,e:6},{x:48,o:32,e:96})];
+ if(s.includes('otgeoreo'))return[F(HIP,HIP),F({x:40,o:-26,e:12},{x:40,o:-24,e:14})];
+ if(s.includes('bo jumeok'))return[F({x:55,o:-30,e:110,t:65},{x:55,o:-28,e:110,t:65})];
+ if(s.includes('arae hecheo'))return[F({x:60,o:-52,e:130},{x:60,o:-50,e:132}),F({x:32,o:32,e:6},{x:32,o:32,e:6})];
+ if(s.includes('hecheo'))return[F({x:50,o:-42,e:120},{x:50,o:-40,e:122}),F({x:48,o:36,e:100},{x:48,o:36,e:100})];
+ if(s.includes('oesanteul'))return[F({x:60,o:-55,e:135},{x:40,o:-40,e:120}),F({x:36,o:16,e:6},{x:95,o:72,e:85})];
+ if(s.includes('jebipoom'))return[F({x:60,o:55,e:110},{x:40,o:-30,e:60}),F({x:86,o:-26,e:14},{x:125,o:-6,e:95,t:85})];
+ if(s.includes('eolgul makgi'))return[F({x:30,o:-28,e:30},{x:62,o:-20,e:62,t:40}),F({x:125,o:-6,e:95,t:85},HIP)];
+ if(s.includes('bitureo'))return[F({x:40,o:35,e:90},{x:60,o:-15,e:10}),F({x:110,o:-10,e:80,t:55},HIP)];
+ if(s.includes('eolgul bakkat'))return[F({x:50,o:-45,e:115},{x:60,o:-15,e:10}),F({x:102,o:36,e:86},HIP)];
+ if(s.includes('arae pyojeok'))return[F({x:120,o:20,e:40},{x:36,o:-34,e:10}),F({x:40,o:-30,e:22},{x:36,o:-34,e:10})];
+ if(s.includes('geodeureo arae'))return[LOWPREP,F({x:36,o:14,e:6},{x:45,o:-20,e:100,t:80})];
+ if(s.includes('hansonnal arae'))return[LOWPREP,F({x:36,o:14,e:6},{x:50,o:-20,e:100,t:80})];
+ if(s.includes('arae'))return[LOWPREP,F({x:46,o:6,e:5},HIP)];
+ if(s.includes('batangson geodeureo'))return[F({x:45,o:40,e:100},{x:40,o:-30,e:120}),F({x:50,o:-22,e:82},{x:45,o:-20,e:100,t:80})];
+ if(s.includes('batangson'))return[F({x:45,o:40,e:100},{x:70,o:-15,e:10}),F({x:50,o:-22,e:82},HIP)];
+ if(s.includes('sonnal momtong')||s.includes('hansonnal momtong')||s.includes('geodeureo momtong'))return[F({x:50,o:-40,e:120},{x:-20,o:20,e:60}),F({x:42,o:30,e:96},{x:50,o:-20,e:100,t:80})];
+ if(s.includes('yeop makgi'))return[F({x:50,o:-40,e:125},HIP),F({x:20,o:84,e:22},HIP)];
+ if(s.includes('an makgi'))return[F({x:40,o:48,e:122},{x:70,o:-15,e:10}),F({x:46,o:-22,e:96},HIP)];
+ if(s.includes('bakkat makgi'))return[F({x:40,o:-46,e:112},{x:70,o:-15,e:10}),F({x:38,o:36,e:96},HIP)];
+ if(s.includes('makgi'))return[F({x:46,o:-22,e:96},HIP)];
+ if(s.includes('palkup pyojeok'))return[F(HIP,{x:80,o:-40,e:40,t:50}),F({x:85,o:-35,e:150,t:85},{x:80,o:-40,e:40,t:50})];
+ if(s.includes('palkup'))return[F(HIP,{x:70,o:-15,e:10}),F({x:85,o:-35,e:150,t:85},HIP)];
+ if(s.includes('eolgul bakkat chigi'))return[F({x:50,o:-50,e:130},{x:40,o:-20,e:60}),F({x:92,o:72,e:20},{x:50,o:-20,e:100,t:80})];
+ if(s.includes('deung jumeok'))return[F({x:62,o:-58,e:140},{x:60,o:-15,e:10}),F({x:104,o:-6,e:26},HIP)];
+ if(s.includes('mejumeok'))return[F({x:160,o:10,e:40},{x:60,o:-10,e:10}),F({x:70,o:-6,e:10},HIP)];
+ if(s.includes('mok chigi'))return[F({x:62,o:58,e:112},{x:70,o:-15,e:6}),F({x:86,o:-16,e:14},HIP)];
+ if(s.includes('sonnal bakkat chigi'))return[F({x:50,o:-50,e:125},HIP),F({x:86,o:42,e:10},HIP)];
+ if(s.includes('kaljaebi'))return[F(HIP,{x:60,o:-10,e:10}),F({x:92,o:-10,e:12},HIP)];
+ if(s.includes('yeop jireugi'))return[F(HIP,{x:40,o:-30,e:100}),F({x:6,o:88,e:0},HIP)];
+ if(s.includes('dangkyeo'))return[F({x:80,o:20,e:10},{x:80,o:-20,e:10}),F({x:70,o:-16,e:112},{x:-10,o:10,e:120})];
+ if(s.includes('sewo')||s.includes('jecheo'))return[F(HIP,{x:40,o:-20,e:30}),F({x:88,o:-10,e:2},{x:40,o:-20,e:95,t:80})];
+ if(s.includes('eolgul jireugi'))return[F(HIP,{x:90,o:-10,e:2}),F({x:104,o:-12,e:2},HIP)];
+ return[F(HIP,{x:86,o:-10,e:4}),F(PUNCH,HIP)];
+}
+/* mano contraria al pie adelantado (baro) */
+const OPP=['baro','an makgi','mok chigi','palkup dollyeo','bitureo','batangson momtong makgi','dangkyeo','kaljaebi'];
+
+/* ---- patadas: K = pierna que patea, S = de apoyo · y = giro de cadera (0 = pecho al objetivo, + = cadera de la patada hacia adelante) ---- */
+const K3=(o,ms)=>({o,ms}), RET={ret:true};
+const SEQ={
+ ap_olligi:[K3({K:{f:60},y:-15},180),K3({K:{f:128,p:10},S:{f:-4},y:-10,sx:-10},240),K3({K:{f:60},y:-20},240),K3(RET,250)],
+ ap:[K3({K:{f:98,k:118,p:25},S:{f:-4,k:12},y:-6},230),K3({K:{f:92,k:4,p:-12},S:{f:-4,k:6},y:-6,sx:-8},150),K3({K:{f:96,k:118,p:25},y:-10},170),K3(RET,260)],
+ dollyeo:[K3({K:{f:70,o:42,k:125,p:40},S:{f:6,k:16},y:40,sz:10},210),K3({K:{f:38,o:82,k:4,p:75},S:{k:8},y:86,sz:26,sx:-4},150),K3({K:{f:60,o:55,k:120,p:40},y:60,sz:14},160),K3(RET,260)],
+ bandal:[K3({K:{f:82,o:22,k:120,p:30},y:18},200),K3({K:{f:74,o:46,k:5,p:55},y:48,sz:12},150),K3({K:{f:80,o:28,k:115},y:28},160),K3(RET,240)],
+ yeop:[K3({K:{f:98,o:14,k:142},S:{k:14},y:60,sz:10},240),K3({K:{f:10,o:88,k:0,p:-5},S:{k:4},y:102,sz:40},180),K3({K:{f:92,o:20,k:136},y:70,sz:15},200),K3(RET,280)],
+ mireo:[K3({K:{f:96,k:126,p:10},y:-5},220),K3({K:{f:88,k:10,p:-25},y:-5,fw:.22,sx:-6},170),K3({K:{f:90,k:116},fw:.14},190),K3(RET,260)],
+ naeryeo:[K3({K:{f:70,o:32,k:20},y:0},170),K3({K:{f:165,o:22,p:30},S:{f:-5},y:0,sx:-12},260),K3({K:{f:150,o:4},sx:-10},90),K3({K:{f:42,p:30},sx:6},180),K3(RET,260)],
+ dwit:[K3({y:-115,K:{f:10,k:30},sx:10},200),K3({y:-180,K:{f:0,k:122,p:20},sx:30},150),K3({y:-180,K:{f:-86,p:-10},sx:42},170),K3({y:-180,K:{f:-10,k:110},sx:20},180),K3({y:-180},110),K3(RET,320)],
+ huryeo:[K3({K:{f:98,o:14,k:142},y:60,sz:10},230),K3({K:{f:34,o:86,k:4,p:-10},y:100,sz:38},150),K3({K:{f:-12,o:80,k:105,p:-10},y:112,sz:38},140),K3({K:{f:82,o:20,k:135},y:70,sz:15},180),K3(RET,260)],
+ pyojeok:[K3({aS:{x:90,o:-28,e:0}},200),K3({aS:{x:90,o:-28,e:0},K:{f:55,o:48,p:0},y:-5},150),K3({aS:{x:90,o:-28,e:0},K:{f:96,o:-18,p:0},y:-10},170),K3({aS:{x:90,o:-28,e:0},K:{f:40}},170),K3(RET,260)],
+ narae:[K3({K:{f:70,o:42,k:125},y:40,j:.08,sz:10},180),K3({K:{f:38,o:82,k:4,p:75},y:86,sz:26,j:.1},140),K3({K:{f:-15,k:20},S:{f:70,o:42,k:125},y:-40,j:.22,sz:-10},170),K3({S:{f:38,o:82,k:4,p:75},K:{f:-10,k:20},y:-86,sz:-26,j:.15},140),K3({S:{f:20,k:20},K:{f:-15,k:10},y:-40},170),K3(RET,240)],
+ twieo_ap:[K3({K:{k:45},S:{k:45,f:30},y:-10},170),K3({S:{f:100,k:125},K:{f:-10,k:40},y:-5,j:.38},200),K3({S:{f:60,k:115},K:{f:94,k:4,p:-12},y:-5,j:.44,sx:-8},150),K3({K:{f:20,k:35},S:{f:15,k:35},j:.02},200),K3(RET,220)],
+ dubal:[K3({K:{k:55},S:{k:55,f:30}},170),K3({S:{f:94,k:4,p:-12},K:{f:-5,k:60},j:.42},170),K3({S:{f:60,k:110},K:{f:94,k:4,p:-12},j:.5,sx:-8},150),K3({K:{f:20,k:35},S:{f:15,k:35},j:.02},200),K3(RET,220)],
+ dwi_huryeo:[K3({y:-110,K:{f:5,k:20},sx:10},180),K3({y:-170,K:{f:-20,o:50,k:40},sx:30},140),K3({y:-232,K:{f:-15,o:86,p:-10},sx:44,sz:-20},170),K3({y:-300,K:{f:-10,o:70,k:85},sx:28},150),K3({y:-360,K:{f:-15,k:20},sx:5},180),K3({ret:true,y:-390},260)],
+ twieo_yeop:[K3({K:{k:55},S:{k:55,f:30},y:20},170),K3({S:{f:95,k:140},K:{f:92,o:15,k:140},y:60,j:.38},170),K3({S:{f:95,k:140},K:{f:10,o:88},y:102,sz:40,j:.46},150),K3({S:{f:20,k:30},K:{f:-10,k:30},y:40,j:.02},220),K3(RET,220)],
+ twieo_dwit:[K3({K:{k:50},S:{k:50,f:30},y:-90},180),K3({y:-180,j:.38,S:{f:80,k:130},K:{f:0,k:130},sx:30},170),K3({y:-180,j:.46,S:{f:80,k:130},K:{f:-86,p:-10},sx:42},150),K3({y:-180,j:.02,K:{f:-20,k:30},S:{f:20,k:30}},200),K3(RET,300)],
+ dolgae:[K3({y:-120,K:{k:40},S:{k:40}},170),K3({y:-220,j:.32,S:{f:90,k:120},sx:5},150),K3({y:-280,j:.46,S:{f:60,k:120},K:{f:70,o:42,k:125}},120),K3({y:-274,j:.46,S:{f:40,k:120},K:{f:38,o:82,k:4,p:75},sz:26},150),K3({y:-300,j:.02,K:{f:20,k:30},S:{f:-10,k:30}},200),K3({ret:true,y:-390},240)],
+ dubeon_yeop:[K3({K:{f:98,o:14,k:145},y:60,sz:10},200),K3({K:{f:-5,o:60},y:100,sz:30},140),K3({K:{f:92,o:20,k:145},y:80,sz:15},140),K3({K:{f:10,o:88},y:102,sz:40},150),K3({K:{f:92,o:20,k:140},y:70,sz:15},170),K3(RET,250)]
+};
+/* base: pose de partida; ks: lado que patea; facing: yaw del frente; y0: giro base */
+function kickFrames(id,base,ks,facing,y0,msK=1){
+ const ss=oth(ks), mir=ks==='R'?1:-1;
+ return SEQ[id].map(fr=>{const f=fr.o;
+  if(f.ret&&f.y===undefined)return{p:{...base},ms:fr.ms*msK,kick:true};
+  const p={...base};
+  if(f.K)Object.assign(p,legP(ks,{f:0,o:0,k:0,p:0,...f.K}));
+  if(f.S)Object.assign(p,legP(ss,{...getLeg(base,ss),...f.S}));
+  if(f.aS)Object.assign(p,armP(ss,f.aS));
+  if(f.aK)Object.assign(p,armP(ks,f.aK));
+  p.yaw=facing+mir*(f.y??y0);
+  if(f.sx!==undefined)p.sx=f.sx;
+  p.sz=(f.sz||0)*SO[ks];
+  p.j=f.j||0;
+  if(f.fw){p.rx=base.rx+Math.sin(rad(facing))*f.fw;p.rz=base.rz+Math.cos(rad(facing))*f.fw;}
+  return{p,ms:fr.ms*msK,kick:true};
+ });
+}
+const GUARD={...BASE,...legP('L',{f:18,o:4,k:14}),...legP('R',{f:-22,o:6,k:10}),...armP('L',{x:42,o:-12,e:100}),...armP('R',{x:26,o:-16,e:116}),yaw:-30,sx:4};
+
+function stancePose(st,lead){const S=STANCE[st]||STANCE['Ap seogi'];return{...legP(lead,S.F),...legP(oth(lead),S.B),sx:S.sx||0};}
 function stepFrames(step){
- const sx=step.d==='W'?-1:1, st=STANCE[step.s]||{}, lead=step.lead||'L', fwd=FWD.has(step.s);
- const legBase=ld=>lr({...pick(G0,/^[FB][tkf]$/),...st},ld);
+ const facing=YAW[step.d], lead=step.lead||'L', fwd=FWD.has(step.s), pos=step.pos||[0,0];
  let cur=(fwd&&TECH_KICK[step.t[0]])?oth(lead):lead;
- let arms=lr(pick(G0,/^[FB][se]$/),cur);
+ let arms={...armP('L',JUNBI_ARM),...armP('R',JUNBI_ARM)};
  const out=[],desc=[],seen={};
- const P=extra=>({t:st.t??0,j:0,x:0,sx,...legBase(cur),...arms,...extra});
- out.push({p:P({}),ms:380});
+ const P=extra=>({...BASE,rx:pos[0],rz:pos[1],yaw:facing,...stancePose(step.s,cur),...arms,...(extra||{})});
+ out.push({p:P(),ms:420});
  step.t.forEach(tech=>{
   const kid=TECH_KICK[tech];
   if(kid){const kl=oth(cur);desc.push({tech,side:kl,kind:'pierna'});
-   SEQ[kid].forEach(f=>{const o={...f.o};delete o.sx;out.push({p:P(lr(o,cur)),ms:f.ms*1.1,kick:true});});
-   if(fwd)cur=kl; out.push({p:P({}),ms:260});}
+   out.push(...kickFrames(kid,P(),kl,facing,0,1.1).slice(0,-1));
+   if(fwd)cur=kl; out.push({p:P(),ms:280});}
   else{const n=seen[tech]||0;seen[tech]=n+1;
    let h=OPP.some(k=>tech.toLowerCase().includes(k))?oth(cur):cur; if(n%2)h=oth(h);
    const knee=tech.toLowerCase().includes('mureup chigi');
    desc.push({tech,side:knee?oth(cur):h,kind:knee?'rodilla':'mano'});
-   armFrames(tech).forEach(o=>{const p=P(lr(o,cur,h));arms=pick(p,/^[LR][se]$/);out.push({p,ms:330});});
-   if(knee)out.push({p:P({}),ms:300});}
+   armFrames(tech).forEach((fr,i,all)=>{
+    arms={...armP(h,fr.M),...armP(oth(h),fr.O)};
+    const extra=fr.knee?legP(oth(cur),{f:112,o:4,k:150,p:30}):{};
+    out.push({p:P(extra),ms:i<all.length-1?260:300});});
+   if(knee)out.push({p:P(),ms:300});}
  });
- if(cur!==lead){cur=lead;out.push({p:P({}),ms:300});}
- return {frames:out,desc,end:out[out.length-1].p};
+ if(cur!==lead){cur=lead;out.push({p:P(),ms:300});}
+ const end=out[out.length-1].p;
+ return {frames:out,desc,end,arms:pick(end,/^[LR]a[xoet]$/)};
 }
-const junbiPose=d=>({...G,...lr({Ft:2,Fk:0,Bt:-2,Bk:0,Fs:20,Fe:70,Bs:20,Be:70},'L'),t:0,sx:d==='W'?-1:1});
+const pick=(o,re)=>{const r={};for(const k in o)if(re.test(k))r[k]=o[k];return r;};
+const junbiPose=d=>({...BASE,...stancePose('Naranhi seogi','L'),...armP('L',JUNBI_ARM),...armP('R',JUNBI_ARM),yaw:180});
 
-const rad=d=>d*Math.PI/180, ease=p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
-const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const FIGS=new Set();
+/* ---- vistas de cámara: az 0 = cámara en +Z mirando hacia -Z ---- */
+const VIEWS={
+ tres:{az:62,el:12,dist:4.3},lado:{az:90,el:6,dist:4.3},frente:{az:0,el:8,dist:4.4},arriba:{az:20,el:78,dist:5.5},
+ detras:{follow:true,off:-32,el:22,dist:4.5},jueces:{az:180,el:12,dist:4.8}
+};
+const COL={R:0xd23a4e,L:0x2f62c7};
 class Fig{
- constructor(cv,opt={}){this.cv=cv;this.ctx=cv.getContext('2d');this.pose={...G,...(opt.pose||{})};this.from={...this.pose};this.q=[];this.trail=[];this.belt=opt.belt||BELTS[0];this.loopFrames=null;FIGS.add(this);this.resize();}
- resize(){const r=this.cv.getBoundingClientRect(),d=window.devicePixelRatio||1;this.w=r.width;this.h=r.height;this.cv.width=Math.max(1,r.width*d);this.cv.height=Math.max(1,r.height*d);this.ctx.setTransform(d,0,0,d,0,0);}
- play(frames,{loop=false,onDone=null,start=null}={}){if(start)this.pose={...start};this.start=start;this.q=frames.map(f=>({...f}));this.from={...this.pose};this.t0=performance.now();this.loopFrames=loop?frames:null;this.onDone=onDone;this.trail=[];}
- kick(id,loop=true){this.play([{p:{...G},ms:250}].concat(SEQ[id].map(f=>({p:{...G,...lr(f.o,'L')},ms:f.ms,kick:true}))),{loop});}
+ constructor(cv,opt={}){
+  this.cv=cv;this.opt=opt;this.belt=opt.belt||BELTS[0];
+  if(!window.THREE){this.fail=true;return;}
+  this.pose={...(opt.pose||GUARD)};this.from={...this.pose};this.q=[];this.trailPts=[];
+  this.view={...VIEWS[opt.view||'tres']};this.camAz=this.view.follow?this.pose.yaw+180+(this.view.off||0):this.view.az;this.camEl=this.view.el;
+  const r=this.renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+  r.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  const sc=this.scene=new THREE.Scene();
+  this.cam=new THREE.PerspectiveCamera(34,1,.1,60);
+  sc.add(new THREE.HemisphereLight(0xffffff,0x6b7280,.95));
+  const dl=new THREE.DirectionalLight(0xffffff,.5);dl.position.set(2.5,5,3.5);sc.add(dl);const dl2=new THREE.DirectionalLight(0xffffff,.35);dl2.position.set(-3,4,-3.5);sc.add(dl2);
+  // piso
+  this.floor=new THREE.Mesh(new THREE.CircleGeometry(opt.floor||4,48),new THREE.MeshLambertMaterial({color:0xe9ebe6}));
+  this.floor.rotation.x=-Math.PI/2;sc.add(this.floor);
+  this.grid=new THREE.GridHelper(8,16,0xc9cec7,0xd8dcd5);this.grid.position.y=.002;sc.add(this.grid);
+  this.shadow=new THREE.Mesh(new THREE.CircleGeometry(.32,24),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.12}));
+  this.shadow.rotation.x=-Math.PI/2;this.shadow.position.y=.004;sc.add(this.shadow);
+  if(opt.target){const pad=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.06,24),new THREE.MeshLambertMaterial({color:0xf2b705}));
+   pad.rotation.x=Math.PI/2;pad.position.set(0,1.08,1.02);sc.add(pad);this.pad=pad;}
+  if(opt.start){const m=new THREE.MeshBasicMaterial({color:0x7a827d});[45,-45].forEach(a=>{const b=new THREE.Mesh(new THREE.BoxGeometry(.32,.006,.04),m);b.rotation.y=rad(a);b.position.y=.006;sc.add(b);});}
+  this.build();
+  const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(30*3),3));
+  this.trail=new THREE.Line(tg,new THREE.LineBasicMaterial({color:COL.R,transparent:true,opacity:.75}));this.trail.frustumCulled=false;sc.add(this.trail);
+  this.bindDrag();this.colors();FIGS.add(this);this.apply(this.pose);this.dirty=true;
+ }
+ build(){
+  const T=THREE,mat=c=>new T.MeshLambertMaterial({color:c});
+  const white=mat(0xf3f3ee),skin=mat(0xd9bf9e),ink=mat(0x1e2226),beltM=mat(new T.Color(this.belt.c));
+  const cap=(r,l,m)=>{const g=new T.CapsuleGeometry(r,l,4,10);g.translate(0,-l/2-r*.2,0);return new T.Mesh(g,m);};
+  const root=this.root=new T.Group();this.scene.add(root);
+  const pel=this.pel=new T.Group();root.add(pel);
+  const hipM=new T.Mesh(new T.SphereGeometry(.15,16,12),white);hipM.scale.set(1.1,.7,.8);pel.add(hipM);
+  const belt=new T.Mesh(new T.CylinderGeometry(.165,.165,.06,20),beltM);belt.position.y=.07;belt.scale.z=.78;pel.add(belt);
+  [-.04,.05].forEach(x=>{const tl=new T.Mesh(new T.BoxGeometry(.035,.16,.012),beltM);tl.position.set(x,-.02,.13);tl.rotation.z=x*4;pel.add(tl);});
+  if(this.belt.t){const tip=new T.Mesh(new T.BoxGeometry(.037,.04,.014),mat(new T.Color(this.belt.t)));tip.position.set(.05,-.09,.131);tip.rotation.z=.2;pel.add(tip);}
+  const spine=this.spine=new T.Group();spine.position.y=.06;pel.add(spine);
+  const torso=new T.Mesh(new T.CapsuleGeometry(.16,.3,4,12),white);torso.position.y=.27;torso.scale.set(1.12,1,.72);spine.add(torso);
+  const lapel=new T.Mesh(new T.BoxGeometry(.05,.28,.01),ink);lapel.position.set(0,.36,.12);lapel.rotation.z=.35;spine.add(lapel);
+  const chest=this.chest=new T.Group();chest.position.y=.5;spine.add(chest);
+  const head=new T.Group();head.position.y=.17;chest.add(head);
+  head.add(new T.Mesh(new T.SphereGeometry(.11,20,16),skin));
+  const hair=new T.Mesh(new T.SphereGeometry(.113,20,16,0,Math.PI*2,0,Math.PI*.55),ink);hair.rotation.x=-.35;head.add(hair);
+  const nose=new T.Mesh(new T.ConeGeometry(.025,.06,10),skin);nose.rotation.x=Math.PI/2;nose.position.set(0,-.01,.115);head.add(nose);
+  this.legs={};this.arms={};this.toes={};
+  ['L','R'].forEach(s=>{const sm=mat(COL[s]),dark=mat(new T.Color(COL[s]).multiplyScalar(.7));
+   const th=new T.Group();th.position.set(SO[s]*.095,-.04,0);pel.add(th);th.add(cap(.075,.36,sm));
+   const kn=new T.Group();kn.position.y=-.46;th.add(kn);kn.add(cap(.06,.37,sm));
+   const an=new T.Group();an.position.y=-.45;kn.add(an);
+   const foot=new T.Mesh(new T.BoxGeometry(.09,.06,.24),dark);foot.position.set(0,-.03,.07);an.add(foot);
+   const toe=new T.Object3D();toe.position.set(0,-.06,.19);an.add(toe);const heel=new T.Object3D();heel.position.set(0,-.06,-.05);an.add(heel);
+   this.legs[s]={th,kn,an};this.toes[s]=[toe,heel];
+   const sh=new T.Group();sh.rotation.order='XZY';sh.position.set(SO[s]*.215,0,0);chest.add(sh);sh.add(cap(.055,.24,sm));
+   const el=new T.Group();el.position.y=-.3;sh.add(el);el.add(cap(.048,.22,sm));
+   const fist=new T.Mesh(new T.SphereGeometry(.058,14,10),dark);fist.position.y=-.31;el.add(fist);
+   this.arms[s]={sh,el};});
+ }
+ colors(){const bg=new THREE.Color(css('--surface')||'#fafbf8'),fl=new THREE.Color(css('--surface-2')||'#f2f4ef'),ln=new THREE.Color(css('--line')||'#d5dad3');
+  this.renderer.setClearColor(bg);this.floor.material.color=fl;this.grid.material.color=ln;
+  const dark=matchMedia('(prefers-color-scheme: dark)').matches||document.documentElement.dataset.theme==='dark';this.shadow.material.opacity=dark?.35:.12;}
+ bindDrag(){let d=null;const c=this.cv;
+  c.addEventListener('pointerdown',e=>{d={x:e.clientX,y:e.clientY,az:this.camAz,el:this.camEl};c.setPointerCapture(e.pointerId);});
+  c.addEventListener('pointermove',e=>{if(!d)return;this.view={...this.view,follow:false};this.camAz=d.az-(e.clientX-d.x)*.5;this.camEl=Math.max(2,Math.min(85,d.el+(e.clientY-d.y)*.3));this.dirty=true;this.opt.onDrag&&this.opt.onDrag();});
+  c.addEventListener('pointerup',()=>d=null);c.addEventListener('pointercancel',()=>d=null);
+  c.style.touchAction='none';c.style.cursor='grab';}
+ setView(n){this.dirty=true;this.view={...VIEWS[n]};if(!this.view.follow){this.camAz=this.view.az;this.camEl=this.view.el;}}
+ play(frames,{loop=false,onDone=null,start=null}={}){if(this.fail)return;if(start)this.pose={...start};this.start=start;this.q=frames.map(f=>({...f}));this.from={...this.pose};this.t0=performance.now();this.loopFrames=loop?frames:null;this.onDone=onDone;this.trailPts=[];}
+ kick(id,loop=true){const fr=kickFrames(id,GUARD,'R',0,-30);this.play([{p:{...GUARD},ms:250}].concat(fr),{loop,start:GUARD});}
+ apply(P){
+  const T=this;T.root.position.set(P.rx,0,P.rz);T.root.rotation.y=rad(P.yaw);
+  T.spine.rotation.set(rad(P.sx),rad(P.sy),rad(P.sz));
+  ['L','R'].forEach(s=>{const L=T.legs[s],A=T.arms[s];
+   L.th.rotation.set(-rad(P[s+'tf']),0,SO[s]*rad(P[s+'to']));L.kn.rotation.x=rad(P[s+'tk']);L.an.rotation.x=rad(P[s+'tp']);
+   A.sh.rotation.set(-rad(P[s+'ax']),-SO[s]*rad(P[s+'at']||0),SO[s]*rad(P[s+'ao']));A.el.rotation.x=-rad(P[s+'ae']);});
+  T.pel.position.y=1;T.root.updateMatrixWorld(true);
+  let min=9;const v=new THREE.Vector3();['L','R'].forEach(s=>T.toes[s].forEach(o=>{o.getWorldPosition(v);min=Math.min(min,v.y);}));
+  T.pel.position.y=1-min+(P.j||0);T.root.updateMatrixWorld(true);
+  T.shadow.position.x=P.rx;T.shadow.position.z=P.rz;T.shadow.scale.setScalar(Math.max(.4,1-(P.j||0)*1.4));
+ }
  tick(now){
-  if(!this.cv.isConnected){FIGS.delete(this);return;}
+  if(this.fail)return;
+  if(!this.cv.isConnected){this.renderer.dispose();this.renderer.forceContextLoss();FIGS.delete(this);return;}
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches, spd=reduce?.5:1;
   if(this.q.length){const f=this.q[0],p=Math.min(1,(now-this.t0)/(f.ms/spd)),e=ease(p);
-   for(const k in f.p)this.pose[k]=(this.from[k]??G[k])+(f.p[k]-(this.from[k]??G[k]))*e;
+   for(const k in f.p)this.pose[k]=(this.from[k]??0)+(f.p[k]-(this.from[k]??0))*e;
    this.kicking=!!f.kick;
    if(p>=1){this.from={...f.p};this.q.shift();this.t0=now;
-     if(!this.q.length){if(this.loopFrames){const hold={p:{...this.pose},ms:800};this.q=[hold].concat(this.start?[{p:{...this.start},ms:350}]:[],this.loopFrames.map(x=>({...x})));this.trail=[];}else{const cb=this.onDone;this.onDone=null;cb&&cb();}}}
+    if(!this.q.length){if(this.loopFrames){this.q=[{p:{...this.pose},ms:800}].concat(this.start?[{p:{...this.start},ms:1}]:[],this.loopFrames.map(x=>({...x})));this.trailPts=[];}
+     else{const cb=this.onDone;this.onDone=null;cb&&cb();}}}
   }else this.kicking=false;
-  this.draw();
- }
- joints(P){
-  const T=60,UA=29,FA=27,TH=45,SH=45,FT=15, sx=P.sx;
-  const v=(a,l)=>[Math.sin(rad(a))*l,Math.cos(rad(a))*l];
-  const leg=(th,k,f)=>{const kn=v(th,TH),sa=th-k,an=v(sa,SH),fo=v(sa+f,FT);const A=[kn[0]+an[0],kn[1]+an[1]];return[kn,A,[A[0]+fo[0],A[1]+fo[1]]];};
-  const sh=[Math.sin(rad(P.t))*T,-Math.cos(rad(P.t))*T];
-  const hd=[sh[0]+Math.sin(rad(P.t))*18,sh[1]-Math.cos(rad(P.t))*18];
-  const arm=(s,e)=>{const a=s+P.t,el=v(a,UA),fa=v(a+e,FA);const E=[sh[0]+el[0],sh[1]+el[1]];return[E,[E[0]+fa[0],E[1]+fa[1]]];};
-  const J={hip:[0,0],sh,hd,L:leg(P.Lt,P.Lk,P.Lf),R:leg(P.Rt,P.Rk,P.Rf),La:arm(P.Ls,P.Le),Ra:arm(P.Rs,P.Re)};
-  const ground=Math.max(J.L[1][1],J.L[2][1],J.R[1][1],J.R[2][1]);
-  const m=pt=>[pt[0]*sx,pt[1]-ground], map=o=>Array.isArray(o[0])?o.map(map):m(o);
-  for(const k in J)J[k]=map(J[k]);
-  return J;
- }
- draw(){
-  const c=this.ctx,w=this.w,h=this.h; if(!w)return; c.clearRect(0,0,w,h);
-  const ink=css('--ink'),line=css('--line'),col={R:css('--red'),L:css('--blue')};
-  const sc=Math.min(1.25,h/262), gy=h-Math.max(14,h*.09), cx=w/2+(this.pose.x||0)*sc;
-  c.strokeStyle=line;c.lineWidth=1;c.beginPath();c.moveTo(10,gy+.5);c.lineTo(w-10,gy+.5);c.stroke();
-  const P=this.pose,J=this.joints(P),jy=(P.j||0);
-  const X=p=>cx+p[0]*sc, Y=p=>gy+(p[1]+jy)*sc;
-  c.fillStyle=line;c.globalAlpha=.6;c.beginPath();c.ellipse(cx,gy+2,38*sc*Math.max(.35,1+jy/120),4*sc,0,0,7);c.fill();c.globalAlpha=1;
-  const seg=(pts,cl,wd,a=1)=>{c.globalAlpha=a;c.strokeStyle=cl;c.lineWidth=wd*sc;c.lineCap='round';c.lineJoin='round';c.beginPath();c.moveTo(X(pts[0]),Y(pts[0]));for(let i=1;i<pts.length;i++)c.lineTo(X(pts[i]),Y(pts[i]));c.stroke();c.globalAlpha=1;};
-  const dot=(p,cl,r,a=1)=>{c.globalAlpha=a;c.fillStyle=cl;c.beginPath();c.arc(X(p),Y(p),r*sc,0,7);c.fill();c.globalAlpha=1;};
+  {const vw=this.view;
+  if(vw.follow){const want=this.pose.yaw+180+(vw.off||0);let d=((want-this.camAz)%360+540)%360-180;this.camAz+=d*.08;this.camEl+=(vw.el-this.camEl)*.08;if(Math.abs(d)>.3)this.dirty=true;}
+  }
+  const moving=this.q.length>0||this.trailPts.length>0;
+  if(!moving&&!this.dirty&&this._w)return;
+  const vr=this.cv.getBoundingClientRect();if(vr.bottom<0||vr.top>innerHeight){this.dirty=true;return;}
+  this.dirty=false;
+  this.apply(this.pose);
   // estela del pie más alto
-  const hi=J.R[2][1]<J.L[2][1]?'R':'L', toe=J[hi][2];
-  if(this.kicking&&toe[1]<-55)this.trail.push([X(toe),Y(toe),hi]); else if(this.trail.length)this.trail.shift();
-  if(this.trail.length>18)this.trail.shift();
-  for(let i=1;i<this.trail.length;i++){c.strokeStyle=col[this.trail[i][2]];c.globalAlpha=i/this.trail.length*.5;c.lineWidth=(2+i/3)*sc;c.beginPath();c.moveTo(this.trail[i-1][0],this.trail[i-1][1]);c.lineTo(this.trail[i][0],this.trail[i][1]);c.stroke();}
-  c.globalAlpha=1;
-  // mirando a la derecha se ve el lado derecho del cuerpo; a la izquierda, el izquierdo
-  const near=P.sx>=0?'R':'L', far=oth(near);
-  seg([J.sh,J[far+'a'][0],J[far+'a'][1]],col[far],8,.72);dot(J[far+'a'][1],col[far],5,.72);
-  seg([J.hip,...J[far]],col[far],10,.72);
-  seg([J.hip,J.sh],ink,12);
-  seg([J.hip,...J[near]],col[near],10);
-  dot(J.hd,ink,12);
-  seg([J.sh,J[near+'a'][0],J[near+'a'][1]],col[near],8);dot(J[near+'a'][1],col[near],5.5);
-  const b=this.belt, ang=Math.atan2(J.sh[1]-J.hip[1],J.sh[0]-J.hip[0])+Math.PI/2;
-  const bx=X([J.sh[0]*.12,0]), by=Y([0,J.sh[1]*.12]);
-  c.save();c.translate(bx,by);c.rotate(ang);c.fillStyle=b.c;c.strokeStyle=ink;c.lineWidth=1;
-  c.fillRect(-9*sc,-3*sc,18*sc,6*sc);c.strokeRect(-9*sc,-3*sc,18*sc,6*sc);
-  const tail=dx=>{c.save();c.translate(dx*sc,2*sc);c.rotate(dx*.04+(P.sx<0?-.2:.2));c.fillStyle=b.c;c.fillRect(-2*sc,0,4*sc,14*sc);c.strokeRect(-2*sc,0,4*sc,14*sc);if(b.t){c.fillStyle=b.t;c.fillRect(-2*sc,10*sc,4*sc,4*sc);}c.restore();};
-  tail(-3);tail(3);c.restore();
+  const v=new THREE.Vector3(),w=new THREE.Vector3();this.toes.L[0].getWorldPosition(v);this.toes.R[0].getWorldPosition(w);
+  const hi=w.y>v.y?'R':'L',pt=hi==='R'?w:v;
+  if(this.kicking&&pt.y>.35){this.trailPts.push([pt.x,pt.y,pt.z]);this.trail.material.color.setHex(COL[hi]);}else if(this.trailPts.length)this.trailPts.shift();
+  if(this.trailPts.length>30)this.trailPts.shift();
+  const arr=this.trail.geometry.attributes.position.array;for(let i=0;i<30;i++){const q=this.trailPts[Math.min(i,this.trailPts.length-1)]||[0,-1,0];arr[i*3]=q[0];arr[i*3+1]=q[1];arr[i*3+2]=q[2];}
+  this.trail.geometry.attributes.position.needsUpdate=true;this.trail.visible=this.trailPts.length>1;
+  // cámara
+  const vw=this.view;
+  const tx=this.pose.rx,tz=this.pose.rz,ty=.85+(this.pose.j||0)*.5,dist=(vw.dist||4.3)*(this.opt.zoom||1);
+  this.cam.position.set(tx+Math.sin(rad(this.camAz))*Math.cos(rad(this.camEl))*dist,ty+Math.sin(rad(this.camEl))*dist,tz+Math.cos(rad(this.camAz))*Math.cos(rad(this.camEl))*dist);
+  this.cam.lookAt(tx,ty,tz);
+  const r=this.cv.getBoundingClientRect();if(r.width&&(r.width!==this._w||r.height!==this._h)){this._w=r.width;this._h=r.height;this.renderer.setSize(r.width,r.height,false);this.cam.aspect=r.width/r.height;this.cam.updateProjectionMatrix();}
+  
+  this.renderer.render(this.scene,this.cam);
  }
 }
 (function loop(t){FIGS.forEach(f=>f.tick(t));requestAnimationFrame(loop);})(performance.now());
-addEventListener('resize',()=>FIGS.forEach(f=>f.resize()));
+addEventListener('resize',()=>FIGS.forEach(f=>{f.dirty=true;f._w=0;}));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>FIGS.forEach(f=>{if(f.colors){f.colors();f.dirty=true;}}));
+
 
 /* ============ VISTA AÉREA ============ */
 const DV={N:[0,1],S:[0,-1],E:[1,0],W:[-1,0]};
@@ -546,6 +765,7 @@ class Aerial{
  }
 }
 
+for(const id in FORMS){const fp=footprints(id);FORMS[id].steps.forEach((st,i)=>{const f=fp[i];st.pos=[(f.L[0]+f.R[0])/2*U,-(f.L[1]+f.R[1])/2*U];});}
 /* ============ STATE ============ */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const S={belt:store.get('tkd-belt',0),hist:store.get('tkd-hist',{}),screen:'home',lvl:0,tab:'forma',form:null,step:0,kick:null,exam:null};
@@ -591,7 +811,7 @@ function renderHome(){
  const ids=Object.keys(KICKS).slice(0,Math.max(2,[0,2,4,6,7,8,10,12,14,16,18][S.belt]));
  const kid=ids[(new Date().getDate())%ids.length];
  document.getElementById('hero-k').innerHTML=`${esc(KICKS[kid].ko)} <span class="muted" style="font-family:var(--body);font-size:13px">${esc(KICKS[kid].es)}</span>`;
- const f=new Fig(document.getElementById('hero-cv'),{belt:b}); f.kick(kid);
+ const f=new Fig(document.getElementById('hero-cv'),{belt:b,target:true}); f.kick(kid);
  document.getElementById('cta').onclick=()=>go('level',{lvl:done?9:S.belt,tab:'forma',form:null,step:0});
  const ce=document.getElementById('cta-exam'); if(ce)ce.onclick=()=>go('level',{lvl:S.belt,tab:'examen',form:null});
  app.querySelectorAll('.rung:not(:disabled)').forEach(r=>r.onclick=()=>go('level',{lvl:+r.dataset.l,tab:'forma',form:null,step:0,kick:null}));
@@ -607,27 +827,28 @@ function renderLevel(){
   <div><div class="eyebrow">${esc(from.g)} → ${esc(to.g)}</div><h1>Camino a ${esc(to.n)}</h1></div>
   <div class="path">${beltHTML(from)}<span class="muted">→</span>${beltHTML(to)}</div>
  </div>
- <div class="tabs" role="tablist">${[['forma','Poomsae'],['patadas','Patadas'],['vocab','Vocabulario'],['examen','Examen']].map(([k,l])=>`<button class="tab" role="tab" data-t="${k}" aria-selected="${S.tab===k}">${l}</button>`).join('')}</div>
+ <div class="tabs" role="tablist">${[['forma','Poomsae'],['patadas','Patadas'],['vocab','Vocabulario'],['teoria','Teoría'],['examen','Examen']].map(([k,l])=>`<button class="tab" role="tab" data-t="${k}" aria-selected="${S.tab===k}">${l}</button>`).join('')}</div>
  <div id="tabc"></div>`;
  document.getElementById('bk').onclick=()=>go('home');
  app.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{S.tab=t.dataset.t;renderLevel();});
- ({forma:tabForma,patadas:tabKicks,vocab:tabVocab,examen:tabExam})[S.tab]();
+ ({forma:tabForma,patadas:tabKicks,vocab:tabVocab,teoria:tabTeoria,examen:tabExam})[S.tab]();
 }
 
 function tabForma(){
  const L=LEVELS[S.lvl],fm=FORMS[S.form],c=document.getElementById('tabc');
  c.innerHTML=`
  ${L.forms.length>1?`<div class="formpick">${L.forms.map(id=>`<button class="pill" data-f="${id}" aria-pressed="${id===S.form}">${esc(FORMS[id].ko)}</button>`).join('')}</div>`:''}
- <div class="sec-h"><div><div class="eyebrow">${esc(fm.tri)} · ${fm.steps.length} pasos</div><h2>${esc(fm.ko)}</h2></div></div>
+ <div class="sec-h"><div style="display:flex;gap:14px;align-items:center">${TRI[S.form]?`<span class="symbig" style="margin:0">${TRI[S.form]}</span>`:''}<div><div class="eyebrow">${esc(fm.tri)} · ${fm.steps.length} pasos</div><h2>${esc(fm.ko)}</h2></div></div></div>
  <p style="max-width:70ch;margin:0 0 16px">${esc(fm.m)}</p>
  <div class="player">
   <div>
    <div class="views">
-    <div class="stage"><canvas id="form-cv" aria-label="Figura de costado"></canvas>
-     <div class="cap"><div class="eyebrow">De costado</div><span class="legend"><span class="side R">Der.</span><span class="side L">Izq.</span></span></div></div>
+    <div class="stage"><canvas id="form-cv" aria-label="Figura 3D del poomsae"></canvas>
+     <div class="cap"><div class="eyebrow"></div><span class="legend"><span class="side R">Der.</span><span class="side L">Izq.</span></span></div></div>
     <div class="stage"><canvas id="air-cv" aria-label="Vista aérea del recorrido"></canvas>
      <div class="cap" style="top:auto;bottom:10px"><div class="eyebrow" id="dir-l"></div></div></div>
    </div>
+   <div class="viewbar" role="group" aria-label="Vista"><button class="vb" data-v="detras" aria-pressed="true">Detrás de ti</button><button class="vb" data-v="jueces" aria-pressed="false">Jueces</button><button class="vb" data-v="lado" aria-pressed="false">Lado</button><button class="vb" data-v="arriba" aria-pressed="false">Arriba</button></div>
    <div class="controls">
     <button class="ic" id="prev" aria-label="Paso anterior">◀</button>
     <button class="btn" id="playall">▶ Reproducir forma</button>
@@ -640,10 +861,11 @@ function tabForma(){
    <ol class="steps" id="slist">${fm.steps.map((st,k)=>`<li class="step" tabindex="0" data-k="${k}"><span class="i">${String(k+1).padStart(2,'0')}</span><span>${esc(st.t.join(' → '))} <span class="muted">· ${esc(st.s)}</span> <span class="side ${st.lead}" title="Pie adelantado">${st.lead==='L'?'izq.':'der.'}</span>${st.k?' <span class="kihap">KIHAP</span>':''}</span></li>`).join('')}</ol>
   </div>
  </div>
- <div class="note">Secuencia agrupada para estudiar: cada paso junta posición y técnicas. Detalles como mano baro/bandae, ángulos de giro y conteo oficial pueden variar según tu escuela; repásalos con tu sabeomnim.</div>
+ <div class="note">Secuencia agrupada para estudiar: cada paso junta posición y técnicas. La vista «Detrás de ti» te muestra la forma como si la hicieras tú: tu izquierda es su izquierda. Detalles como mano baro/bandae, ángulos de giro y conteo oficial pueden variar según tu escuela; repásalos con tu sabeomnim.</div>
  <div class="row" style="margin-top:16px"><button class="btn ghost" id="prac">Practicar esta forma (sin nota)</button></div>`;
  c.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{S.form=p.dataset.f;S.step=0;tabForma();});
- const fig=new Fig(document.getElementById('form-cv'),{belt:BELTS[S.lvl],pose:junbiPose(fm.steps[0].d)}), air=new Aerial(document.getElementById('air-cv'),S.form);
+ setTimeout(()=>c.querySelectorAll('.vb').forEach(b=>b.onclick=()=>{fig.setView(b.dataset.v);c.querySelectorAll('.vb').forEach(x=>x.setAttribute('aria-pressed',x===b));}),0);
+ const fig=new Fig(document.getElementById('form-cv'),{belt:BELTS[S.lvl],pose:junbiPose(),view:'detras',start:true,onDrag:()=>c.querySelectorAll('.vb').forEach(b=>b.setAttribute('aria-pressed','false'))}), air=new Aerial(document.getElementById('air-cv'),S.form);
  let auto=false;
  const show=(k,animate=true)=>{
   S.step=Math.max(0,Math.min(fm.steps.length-1,k));const st=fm.steps[S.step], r=stepFrames(st);
@@ -673,11 +895,12 @@ function tabKicks(){
  if(!S.kick||!KICKS[S.kick])S.kick=L.kicks[0];
  const btn=id=>`<button class="kbtn" data-k="${id}" aria-pressed="${id===S.kick}"><span class="ko">${esc(KICKS[id].ko)}</span><span class="muted" style="font-size:12px">${L.kicks.includes(id)?'nueva':'repaso'}</span><small>${esc(KICKS[id].es)}</small></button>`;
  c.innerHTML=`<div class="kicks">
-  <div><div class="stage"><canvas id="kick-cv" aria-label="Animación de patada"></canvas><div class="cap"><div class="eyebrow">Vista lateral</div><span class="legend"><span class="side R">Derecha</span><span class="side L">Izquierda</span></span></div></div><div class="kdetail" id="kd"></div></div>
+  <div><div class="stage"><canvas id="kick-cv" aria-label="Animación de patada"></canvas><div class="cap"><div class="eyebrow">Arrastra para girar</div><span class="legend"><span class="side R">Derecha</span><span class="side L">Izquierda</span></span></div></div><div class="viewbar" role="group" aria-label="Vista"><button class="vb" data-v="tres" aria-pressed="true">3/4</button><button class="vb" data-v="lado" aria-pressed="false">Lado</button><button class="vb" data-v="frente" aria-pressed="false">Frente</button><button class="vb" data-v="arriba" aria-pressed="false">Arriba</button></div><div class="kdetail" id="kd"></div></div>
   <div><div class="eyebrow" style="margin-bottom:8px">Nuevas en este grado</div><div class="klist">${L.kicks.map(btn).join('')}</div>
    ${prev.length?`<div class="eyebrow" style="margin:18px 0 8px">Repaso de grados anteriores</div><div class="klist">${prev.map(btn).join('')}</div>`:''}
    <div class="row" style="margin-top:14px"><button class="btn ghost" id="pk">Practicar patadas (sin nota)</button></div></div></div>`;
- const fig=new Fig(document.getElementById('kick-cv'),{belt:BELTS[S.lvl]});
+ const fig=new Fig(document.getElementById('kick-cv'),{belt:BELTS[S.lvl],target:true,onDrag:()=>c.querySelectorAll('.vb').forEach(b=>b.setAttribute('aria-pressed','false'))});
+ c.querySelectorAll('.vb').forEach(b=>b.onclick=()=>{fig.setView(b.dataset.v);c.querySelectorAll('.vb').forEach(x=>x.setAttribute('aria-pressed',x===b));});
  const sel=id=>{S.kick=id;const k=KICKS[id];c.querySelectorAll('.kbtn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===id));
   document.getElementById('kd').innerHTML=`<div class="ko" style="font-size:26px">${esc(k.ko)}</div><div class="muted">${esc(k.es)}</div><dl><dt>Golpea con</dt><dd>${esc(k.s)}</dd><dt>Clave</dt><dd>${esc(k.tip)}</dd></dl>`;fig.kick(id);};
  c.querySelectorAll('.kbtn').forEach(b=>b.onclick=()=>sel(b.dataset.k));
@@ -693,14 +916,25 @@ function tabVocab(){
  document.getElementById('pv').onclick=()=>startExam(S.lvl,{practice:'vocab'});
 }
 
+function tabTeoria(){
+ const L=LEVELS[S.lvl],c=document.getElementById('tabc');
+ const forms=L.forms.filter(f=>TRI[f]).slice(0,8);
+ const groups={};(L.theory||[]).forEach(t=>{(groups[t.cat]=groups[t.cat]||[]).push(t);});
+ c.innerHTML=`<p class="muted" style="margin-top:0;max-width:70ch">Significados, simbología e historia de este grado, según el material de la Academia Um Yang Chong Hong. El examen pregunta estos y algunos de grados anteriores.</p>
+ <div class="tris">${forms.map(f=>`<div class="tri"><span class="sym">${TRI[f]}</span><span><b>${esc(FORMS[f].ko)}</b><br><span class="muted">${esc(FORMS[f].tri)}</span></span></div>`).join('')}</div>
+ ${Object.keys(groups).map(k=>`<div class="eyebrow" style="margin:18px 0 8px">${esc(CATS[k]||k)}</div><div class="qa">${groups[k].map(t=>`<div class="term">${t.sym?`<span class="symsm">${t.sym}</span>`:''}<b style="display:block;margin-bottom:4px">${esc(t.q)}</b><span>${esc(t.a)}</span></div>`).join('')}</div>`).join('')}
+ <div class="row" style="margin-top:16px"><button class="btn ghost" id="pt">Practicar teoría (sin nota)</button></div>`;
+ document.getElementById('pt').onclick=()=>startExam(S.lvl,{practice:'theory'});
+}
 function tabExam(){
  const i=S.lvl,L=LEVELS[i],c=document.getElementById('tabc'),h=S.hist[i];
  const formTxt=L.review?(L.forms[0]==='koryo'?'Koryo completa + un Taegeuk que elige el examinador':'Un Taegeuk que elige el examinador (del 1 al 8)'):FORMS[L.forms[0]].ko+' completa';
- c.innerHTML=`<p style="max-width:70ch;margin-top:0">Así funciona: en la forma eliges, entre cuatro figuras animadas, el movimiento que sigue (ojo con el pie y el brazo). En patadas eliges la figura que corresponde al nombre; desde cinturón verde también te muestran la patada y eliges el nombre. Al final, vocabulario. Apruebas con <b>80% o más</b> y <b>máximo 2 errores en el poomsae</b>.</p>
+ c.innerHTML=`<p style="max-width:70ch;margin-top:0">Así funciona: en la forma eliges, entre cuatro figuras animadas, el movimiento que sigue (ojo con el pie y el brazo). En patadas eliges la figura que corresponde al nombre; desde cinturón verde también te muestran la patada y eliges el nombre. Al final, vocabulario y teoría (significados, simbología e historia). Apruebas con <b>80% o más</b> y <b>máximo 2 errores en el poomsae</b>.</p>
  <div class="exambox">
   <div class="part"><span class="eyebrow">Parte 1</span><b>Poomsae</b><span>${esc(formTxt)}</span></div>
   <div class="part"><span class="eyebrow">Parte 2</span><b>Patadas</b><span>${L.kicks.length} nuevas + repaso. Eliges la figura que corresponde al nombre.</span></div>
   <div class="part"><span class="eyebrow">Parte 3</span><b>Vocabulario</b><span>8 términos, incluye repaso de grados anteriores.</span></div>
+  <div class="part"><span class="eyebrow">Parte 4</span><b>Teoría</b><span>7 preguntas de significados, simbología e historia.</span></div>
  </div>
  ${h?`<p class="muted">Mejor intento: ${h.best}%${h.passed?' · aprobado':''}</p>`:''}
  <button class="btn red" id="go-exam">${i<S.belt?'Rendir de nuevo':'Rendir examen para '+esc(BELTS[i+1].n)}</button>`;
@@ -719,7 +953,7 @@ function formQuestions(fid){
   shuffle(fm.steps).forEach(x=>{if(opts.length<3)add(x)});            // otro paso de la misma forma
   add({...st,s:shuffle(stances.filter(s=>s!==st.s))[0]});            // otra posición
   shuffle(allSteps).forEach(add);
-  const sh=shuffle(opts.map(o=>({...o,d:st.d})));
+  const sh=shuffle(opts.map(o=>({...o,d:st.d,pos:st.pos})));
   return {type:'form',fid,k,st,opts:sh,ai:sh.findIndex(o=>skey(o)===skey(st))};
  });
 }
@@ -748,13 +982,14 @@ function startExam(lvl,{practice=null,formId=null}){
  }
  if(!practice||practice==='kicks')qs.push(...kickQuestions(lvl,practice?4:2));
  if(!practice||practice==='vocab')qs.push(...vocabQuestions(lvl,practice?10:6,practice?4:2));
+ if(!practice||practice==='theory')qs.push(...theoryQuestions(lvl,practice?10:5,practice?4:2));
  S.exam={lvl,practice,picked,qs,i:0,res:[],locked:false};
  go('exam');
 }
 function figOptions(n,label){return `<div class="figs">${Array.from({length:n},(_,j)=>`<button class="figopt opt" data-j="${j}" aria-label="Opción ${LETTERS[j]}"><span class="lt">${LETTERS[j]}</span><canvas></canvas><span class="nm" data-nm="${j}">${label?esc(label(j)):'&nbsp;'}</span></button>`).join('')}</div>`;}
 function renderExam(){
  const E=S.exam,q=E.qs[E.i],n=E.qs.length,belt=BELTS[E.lvl];
- const sec=q.type==='form'?`Parte 1 · ${FORMS[q.fid].ko}`:q.type==='kick'?'Parte 2 · Patadas':'Parte 3 · Vocabulario';
+ const sec=q.type==='form'?`Parte 1 · ${FORMS[q.fid].ko}`:q.type==='kick'?'Parte 2 · Patadas':q.type==='theory'?'Parte 4 · Teoría':'Parte 3 · Vocabulario';
  app.innerHTML=`
  <div class="exam-top"><div><div class="eyebrow">${E.practice?'Práctica':'Examen'} · ${esc(belt.n)} → ${esc(BELTS[E.lvl+1].n)}</div><h2 style="font-size:24px;margin-top:4px">${esc(sec)}</h2></div>
   <div class="row"><span class="muted" style="font-family:var(--mono);font-size:13px">${E.i+1}/${n}</span><span id="quitz"><button class="btn ghost" id="quit">Salir</button></span></div></div>
@@ -772,28 +1007,33 @@ function renderExam(){
    <div class="legend" style="margin-top:10px"><span class="side R">Derecha</span><span class="side L">Izquierda</span></div>
    <div class="trail">${fq.map(o=>{const r=E.res[o.j];return `<span class="${r===undefined?(o.j===E.i?'cur':''):r?'ok':'bad'}">${o.x.k+1}</span>`}).join('')}</div>
   </div><div>${figOptions(q.opts.length)}</div></div>`;
-  new Fig(document.getElementById('ref-cv'),{belt,pose:startPose});
+  new Fig(document.getElementById('ref-cv'),{belt,pose:startPose,view:'detras',start:true});
   {const a=new Aerial(document.getElementById('refair-cv'),q.fid);a.go(q.k-1);a.p=1;a.t0=-1e9;}
-  body.querySelectorAll('.figopt canvas').forEach((cv,j)=>{const f=new Fig(cv,{belt,pose:startPose});f.play(stepFrames(q.opts[j]).frames,{loop:true,start:startPose});});
+  body.querySelectorAll('.figopt canvas').forEach((cv,j)=>{const f=new Fig(cv,{belt,pose:startPose,view:'detras',start:true,zoom:.78});f.play(stepFrames(q.opts[j]).frames,{loop:true,start:startPose});});
  }else if(q.type==='kick'&&q.mode==='pick'){
   body.innerHTML=`<div class="q wide"><div>
    <div class="eyebrow">Elige la figura</div>
    <div class="prompt">${esc(KICKS[q.id].ko)}</div>
    <p class="muted" style="margin:6px 0">${esc(KICKS[q.id].es)}</p>
   </div><div>${figOptions(4)}</div></div>`;
-  body.querySelectorAll('.figopt canvas').forEach((cv,j)=>new Fig(cv,{belt}).kick(q.opts[j]));
+  body.querySelectorAll('.figopt canvas').forEach((cv,j)=>new Fig(cv,{belt,target:true,zoom:.85}).kick(q.opts[j]));
  }else if(q.type==='kick'){
   body.innerHTML=`<div class="q"><div class="stage"><canvas id="ex-cv"></canvas><div class="cap"><div class="eyebrow">Mira la animación</div></div></div><div>
    <div class="prompt">¿Qué patada es?</div>
    <div class="opts">${q.opts.map((o,j)=>`<button class="opt" data-j="${j}"><span class="ko">${esc(KICKS[o].ko)}</span><br><span class="muted" style="font-size:13px">${esc(KICKS[o].es)}</span></button>`).join('')}</div></div></div>`;
-  new Fig(document.getElementById('ex-cv'),{belt}).kick(q.id);
+  new Fig(document.getElementById('ex-cv'),{belt,target:true}).kick(q.id);
+ }else if(q.type==='theory'){
+  body.innerHTML=`<div class="q solo"><div><div class="eyebrow">Teoría</div>
+   ${q.sym?`<div class="symbig">${q.sym}</div>`:''}
+   <div class="prompt" style="font-size:clamp(22px,3.4vw,32px)">${esc(q.q)}</div>
+   <div class="opts">${q.opts.map((o,j)=>`<button class="opt" data-j="${j}">${esc(o)}</button>`).join('')}</div></div></div>`;
  }else{
   body.innerHTML=`<div class="q solo"><div><div class="eyebrow">${q.rev?'¿Cómo se dice en coreano?':'¿Qué significa?'}</div>
    <div class="prompt">${esc(q.q)}</div>
    <div class="opts">${q.opts.map((o,j)=>`<button class="opt" data-j="${j}">${q.rev?`<span class="ko">${esc(o)}</span>`:esc(o)}</button>`).join('')}</div></div></div>`;
  }
  document.getElementById('quit').onclick=()=>{document.getElementById('quitz').innerHTML=`<span class="confirm"><span class="muted" style="font-size:13px">¿Salir sin terminar?</span><button class="btn red" id="qy">Salir</button><button class="btn ghost" id="qn">Seguir</button></span>`;
-  document.getElementById('qy').onclick=()=>go('level',{lvl:E.lvl,tab:E.practice?({form:'forma',kicks:'patadas',vocab:'vocab'}[E.practice]):'examen'});document.getElementById('qn').onclick=renderExam;};
+  document.getElementById('qy').onclick=()=>go('level',{lvl:E.lvl,tab:E.practice?({form:'forma',kicks:'patadas',vocab:'vocab',theory:'teoria'}[E.practice]):'examen'});document.getElementById('qn').onclick=renderExam;};
  body.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.j));
 }
 function answer(j){
@@ -803,11 +1043,11 @@ function answer(j){
  // revela los nombres bajo cada figura
  document.querySelectorAll('[data-nm]').forEach(el=>{const o=q.opts[+el.dataset.nm];
   el.innerHTML=q.type==='form'?`${esc(o.t.join(' → '))} <span class="muted">· ${esc(o.s)}</span> <span class="side ${o.lead}">pie ${o.lead==='L'?'izq.':'der.'}</span>`:`<span class="ko">${esc(KICKS[o].ko)}</span> <span class="muted">· ${esc(KICKS[o].es)}</span>`;});
- const wait=q.type==='vocab'||q.mode==='name'?(ok?700:1700):(ok?1600:3200);
+ const wait=q.type==='vocab'||q.type==='theory'||q.mode==='name'?(ok?700:1700):(ok?1600:3200);
  setTimeout(()=>{E.locked=false;E.i++;if(E.i>=E.qs.length)finishExam();else renderExam();},wait);
 }
 function finishExam(){
- const E=S.exam,parts={form:[0,0],kick:[0,0],vocab:[0,0]},miss=[];
+ const E=S.exam,parts={form:[0,0],kick:[0,0],vocab:[0,0],theory:[0,0]},miss=[];
  E.qs.forEach((q,k)=>{parts[q.type][1]++;if(E.res[k])parts[q.type][0]++;else miss.push(q);});
  const tot=E.res.filter(Boolean).length,pct=Math.round(tot/E.qs.length*100),formErr=parts.form[1]-parts.form[0];
  const passed=pct>=80&&formErr<=2;
@@ -822,7 +1062,7 @@ function finishExam(){
   <h1>${E.practice?`${pct}% correcto`:passed?`¡Cinturón ${esc(to.n)}!`:'Todavía no'}</h1>
   ${!E.practice&&passed?`<div class="award">${beltHTML(to,true)}</div><p>${esc(to.g)}. ${esc(to.m)} ${promoted?'Se desbloqueó tu siguiente grado.':''}</p>`:''}
   ${!E.practice&&!passed?`<p>Sacaste <b>${pct}%</b>${parts.form[1]?` con <b>${formErr}</b> error${formErr===1?'':'es'} en el poomsae`:''}. Necesitas 80% y máximo 2 errores en la forma. Repasa lo de abajo y vuelve a intentarlo.</p>`:''}
-  <div class="scores">${sc('Poomsae',parts.form)}${sc('Patadas',parts.kick)}${sc('Vocabulario',parts.vocab)}</div>
+  <div class="scores">${sc('Poomsae',parts.form)}${sc('Patadas',parts.kick)}${sc('Vocabulario',parts.vocab)}${sc('Teoría',parts.theory)}</div>
   ${E.picked.length&&!E.practice&&LEVELS[E.lvl].review?`<p class="muted">El examinador eligió: ${E.picked.map(f=>FORMS[f].ko).join(' y ')}.</p>`:''}
   ${miss.length?`<div class="eyebrow" style="margin-top:8px">Para repasar</div><ul class="miss">${miss.map(q=>`<li>${esc(missTxt(q))}</li>`).join('')}</ul>`:'<p>Sin errores. Limpio.</p>'}
   <div class="row" style="margin-top:22px">
